@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+       xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+	
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmCanton">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarCanton" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nuevo Canton" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorCanton.nuevoCanton}"
+			             				  update="toolbarCanton, pnlDatosCanton"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Canton" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlDatosCanton" 
+						 				  action="#{controladorCanton.insertarCantones}" 
+						 				  update="frmCanton"
+						 				  disabled="#{controladorCanton.botonInsertarCantones}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Canton"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlDatosCanton"
+						 				  action="#{controladorCanton.actualizarCanton}" 
+						 				  disabled="#{controladorCanton.botonActualizarCantones}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Canton" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorCanton.abrirDialogoEliminarCantones}"
+					                      disabled="#{controladorCanton.botonEliminarCantones}"/> 
+					                      
+					      <p:commandButton id="cmbCancelar" title="Cancelar Cambios" value="Cancelar" icon="ui-icon-cancel"
+					     				  process="@this"
+					                      action="#{controladorCanton.recuperarCanton}"
+					                      update="pnlDatosCanton"/> 
+					                                        
+					                      
+				</p:toolbarGroup>
+				
+				<p:toolbarGroup align="right">
+					   	  <p:inputText id="txtNombreCanton" value="#{controladorCanton.nombreCantonABuscar}"/>
+				          <p:commandButton value="Buscar" 
+				                          action="#{controladorCanton.buscarCanton}"
+				                          process="@this,txtNombreCanton"
+				                          update="pnlListaCantones, txtNombreCanton"/>
+				          <p:commandButton  title="Recuperar Lista " icon="ui-icon-folder-open"
+				          					process="@this"
+				          					action="#{controladorCanton.cargarListaCantones()}"
+				          					update="pnlListaCantones"/>
+				</p:toolbarGroup>
+				<br />
+			</p:toolbar>
+			<br />
+			<p:panel header="INGRESAR CANTONES" style="max-width:250px;min-height:100px;">
+				<h:panelGrid id="pnlDatosCanton" columns="2" >
+							<h:outputText value="PROVINCIA: " />
+							<p:selectOneMenu value="#{controladorCanton.idProvincia}" id="oneMenuProvincia">
+								<f:selectItem itemLabel="-- Seleccione la Provincia --" itemValue="0"/>
+								<f:selectItems value="#{controladorCanton.lstProvincia}" var="varProvincia"
+									itemValue="#{varProvincia.provinciaid}" itemLabel="#{varProvincia.nombre}"/>
+								<p:ajax event="change"
+										process="@this, oneMenuProvincia"
+										listener="#{controladorCanton.cargarListaCantones()}"
+										update="pnlListaCantones"/>	
+							</p:selectOneMenu>
+									 <h:outputText value="DPA: " />
+									 <p:inputText value="#{controladorCanton.canton.dpa}"/> 
+								     <h:outputText value="CANTON: " />
+									 <p:inputText value="#{controladorCanton.canton.nombre}" onkeypress="return validarNombres(event)"/>
+									
+				 </h:panelGrid>
+			 </p:panel>
+			 <br />
+			 
+			 <h:panelGrid id="pnlListaCantones">
+				 <p:dataTable id="dtablaCantones" value="#{controladorCanton.lstCanton}" var="varCanton"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE CANTONES" />
+				 </f:facet>	
+				 	  <p:column headerText="DPA">
+						  	<h:outputText value="#{varCanton.dpa}" />
+					  </p:column>	  
+					  <p:column filterBy="#{varCanton.nombre}" sortBy="#{varCanton.nombre}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="CANTON" />
+						 	</f:facet>
+						 	<h:outputText value="#{varCanton.nombre}" />
+					  </p:column>
+					   <p:column headerText="REGION">
+						  	<h:outputText value="#{varCanton.region}" />
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Canton" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorCanton.recuperarCanton}"
+								update=":frmCanton:pnlDatosCanton :frmCanton:toolbarCanton">
+								<f:setPropertyActionListener target="#{controladorCanton.canton}" value="#{varCanton}"/>
+							</p:commandButton>
+						</p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:dialog widgetVar="dlgEliminarCanton" header="! Eliminar Canton" showEffect="explode">
+		<h:form id="fmrEliminarCanton">
+			<h:outputText value="¿Está seguro que desea eliminar este Canton?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorCanton.eliminarCanton}" 
+				oncomplete="dlgEliminarCanton.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarCanton.hide()"/>
+		</h:form>
+	</p:dialog>	
+</ui:define>
+	</ui:composition>
+</html>

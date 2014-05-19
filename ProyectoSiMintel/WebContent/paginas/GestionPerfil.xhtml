@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/templateLayoutMenuGeneral.xhtml">
+	<ui:define name="tituloPagina">Gestión de perfiles</ui:define>
+	<ui:define name="contenido">
+		<h:form id="frmPrincipal">
+			<p:panel id="pnlUsuario" header="Buscar Usuario">
+				<f:facet name="header">
+					<h:outputText value="Gestión de perfiles.     " />
+					<p:commandButton id="cmdGuardarCambios" value="Guardar" icon="ui-icon-disk"
+						action="#{controladorPerfil.guardarCambios}" />
+					<p:commandButton value="Gestión Páginas"
+						action="#{controladorPerfil.redireccionGestionPagina}" process="@this" />
+					<p:commandButton value="Gestión Rol"
+						action="#{controladorPerfil.redireccionGestionRol}" process="@this" />
+					<p:commandButton value="Asignar Permisos"
+						action="#{controladorPerfil.redireccionAsignarPermisos}" process="@this" />
+
+				</f:facet>
+
+				<h:panelGrid columns="3"
+					rendered="#{!controladorPerfil.habilitarTblRol}">
+					<h:outputText value="Username" />
+					<p:inputText required="true"
+						requiredMessage="Debe ingresar un username"
+						value="#{controladorPerfil.usernameUsuario}"></p:inputText>
+
+					<p:commandButton value="Buscar" update=":frmPrincipal"
+						action="#{controladorPerfil.buscarUsuario}"></p:commandButton>
+				</h:panelGrid>
+				<h:outputText style="font-size:20px;" value="Usuario Escogido"
+					rendered="#{controladorPerfil.habilitarTblRol}" />
+				<h:panelGrid columns="2"
+					rendered="#{controladorPerfil.habilitarTblRol}">
+					<h:outputText value="Username: " />
+					<h:outputText value="#{controladorPerfil.usuario.usuario}" />
+					<h:outputText value="Nombre: " />
+					<h:outputText value="#{controladorPerfil.usuario.persona.nombre}" />
+					<h:outputText value="Apellido: " />
+					<h:outputText value="#{controladorPerfil.usuario.persona.apellido}" />
+				</h:panelGrid>
+				<p:commandButton value="Atrás" update=":frmPrincipal"
+					rendered="#{controladorPerfil.habilitarTblRol}"
+					action="#{controladorPerfil.buscarNuevo}" />
+			</p:panel>
+
+			<p:panel id="pnlRol" header="Roles Asignados"
+				rendered="#{controladorPerfil.habilitarTblRol}">
+				<p:dataTable value="#{controladorPerfil.roles}" var="rol"
+					emptyMessage="No hay roles disponibles">
+					<p:column headerText="Seleccionar">
+						<p:selectBooleanCheckbox value="#{rol.rolSeleccionado}" />
+					</p:column>
+					<p:column headerText="Nombre Rol">
+						<h:outputText value="#{rol.nombre}" />
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>
+

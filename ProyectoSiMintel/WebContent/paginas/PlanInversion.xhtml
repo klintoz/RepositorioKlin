@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmInversionPlan">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarInversionPlan" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nuevo Inversion Plan" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorPlanInversion.nuevoInversionPlan()}"
+			             				  update="frmInversionPlan"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Inversion Plan" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlInversionPlan" 
+						 				  action="#{controladorPlanInversion.insertarInversionPlan()}" 
+						 				  update="frmInversionPlan"
+						 				  disabled="#{controladorPlanInversion.botonInsertarInversionPlan}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Inversion Plan"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlInversionPlan"
+						 				  action="#{controladorPlanInversion.actualizarInversionPlan()}" 
+						 				  update="frmInversionPlan"
+						 				  disabled="#{controladorPlanInversion.botonActualizarInversionPlan}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Inversion Plan" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorPlanInversion.abrirDialogoEliminarPlanInversion()}"
+					                      disabled="#{controladorPlanInversion.botonEliminarInversionPlan}"/> 
+	 
+					     <p:commandButton id="cmbIrBuscar" title="Buscar" value="Buscar" icon="ui-icon-search"
+										  process="@this"
+										  action="#{controladorPlanInversion.abrirDialogoBuscarInversionPlan()}"
+										  update=":frmBuscarInversionPlan"/>
+					                                               
+				</p:toolbarGroup>
+
+				<br />
+			</p:toolbar>
+			<br />
+			<p:panel header="Inversión" style="max-width:400px;min-height:100px;">
+				<h:panelGrid id="pnlInversionPlan" columns="2" >
+				 <h:outputText value="Convenio:" />
+				  <p:selectOneMenu value="#{controladorPlanInversion.idConvenio}" id="selectconvenio">
+				  	<f:selectItem itemLabel="--Seleccione--" itemValue="0"/>
+				  	<f:selectItems value="#{controladorPlanInversion.lstConvenios}" var="varConvenios"
+				  	               itemValue="#{varConvenios.convenioid}" itemLabel="#{varConvenios.descripcion}"/>
+				  	<p:ajax event="change" process="selectconvenio"
+				  	        listener="#{controladorPlanInversion.cargarListaInversionPorConvenio()}"
+				  	        update="selectinversion"/>               
+				  </p:selectOneMenu>
+				  <h:outputText value="(**)Inversión: " />  
+				   <p:selectOneMenu value="#{controladorPlanInversion.idInversion}" id="selectinversion">
+				  	<f:selectItem itemLabel="--Seleccione--" itemValue="0"/>
+				  	<f:selectItems value="#{controladorPlanInversion.lstInversiones}" var="varInversion"
+				  	               itemValue="#{varInversion.inversionid}" itemLabel="#{varInversion.descripcion}"/>
+				  	<p:ajax event="change" process="selectinversion"
+				  	        listener="#{controladorPlanInversion.pintarTipoInversion()}"
+				  	        update="txtTipoInversion,pnlListPlanInversion"/>               
+				  
+				  </p:selectOneMenu>
+				  <h:outputText value="(**)Tipo de Inversion: " />
+				  <h:outputText id="txtTipoInversion"  value="#{controladorPlanInversion.inversion.tipoinversion.descripcion}" /> 
+				   
+				</h:panelGrid>
+			 </p:panel>
+			 <p:separator/>
+			 <p:panel  header="DATOS PLAN DE INVERSIÓN" style="max-width:500px;min-height:100px;">
+				 <h:panelGrid id="pnlPlanInversion" columns="2">
+			    	 <h:outputText value="Descripcion: " />
+					 <p:inputText value="#{controladorPlanInversion.planInversion.descriptivo}"/>
+					 <h:outputText value="Equipos:" />
+					 <p:selectOneMenu value="#{controladorPlanInversion.idEquipos}" id="selecioneEquipo">
+					 	<f:selectItem itemLabel="--seleccionar--" itemValue="0"/>
+					 	<f:selectItems value="#{controladorPlanInversion.lstEquipos}" var="varEquipo"
+					 				   itemValue="#{varEquipo.setatributosid}" itemLabel="#{varEquipo.descripcion}"/>
+					 </p:selectOneMenu>
+					 <h:outputText value="Precio: " />
+					 <p:inputText value="#{controladorPlanInversion.planInversion.precio}"/>
+					 <h:outputText value="Detalle de Cantidad: " />
+					 <p:selectOneMenu value="#{controladorPlanInversion.idDetalledeCantidad}">
+					 	<f:selectItem itemLabel="--Seleccionar--" itemValue="0"/>
+					 	<f:selectItem itemLabel="Si" itemValue="1"/>
+					 	<f:selectItem itemLabel="No" itemValue="2"/>
+					 </p:selectOneMenu>
+					 <p:commandButton
+					 	process="@this, pnlPlanInversion"
+					 	action="#{controladorPlanInversion.agregarPlanInversion}"  
+					 	update="pnlListPlanInversion,pnlPlanInversion"
+					 	disabled="#{controladorPlanInversion.botonInsertarPlanInversion}"
+					 	icon="ui-icon-plusthick"/>
+					 	
+					 <p:commandButton
+					 	process="@this,pnlPlanInversion"
+					 	action="#{controladorPlanInversion.actualizarPlanInversion}"
+					 	update="pnlListPlanInversion,pnlPlanInversion"
+					 	disabled="#{controladorPlanInversion.botonActualizarPlanInversion}"
+					 	icon="ui-icon-arrowreturn-1-s"/>
+					
+				 </h:panelGrid>
+			 </p:panel>
+			 <br />
+			   
+			 <h:panelGrid id="pnlListPlanInversion">
+				 <p:dataTable id="dtablaPlanInversion" value="#{controladorPlanInversion.lstPlanInversiones}" var="varPlanInv"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE PLAN INVERSION" />
+				 </f:facet>	
+				  	  <p:column headerText="INVERSION">
+						  	<h:outputText value="#{varPlanInv.inversion.descripcion}" />
+					  </p:column>	  
+					  <p:column filterBy="#{varPlanInv.descriptivo}" sortBy="#{varPlanInv.descriptivo}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="DESCRIPCION" />
+						 	</f:facet>
+						 	<h:outputText value="#{varPlanInv.descriptivo}" />
+					  </p:column>
+					   <p:column headerText="EQUIPO">
+								<h:outputText value="#{varPlanInv.setatributo.descripcion}" />
+					  </p:column>
+					  
+					  <p:column headerText="PRECIO">
+						  	<h:outputText value="#{varPlanInv.precio}" />
+					  </p:column>
+					  <p:column headerText="DETALLE CANTIDAD">
+						  	<h:outputText value="#{varPlanInv.detallecantidad}" />
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Plan Inversion" icon="ui-icon-check"
+								process="@this"
+								action="#{controladorPlanInversion.habilitarModificarPlanInversion()}"
+								update=":frmInversionPlan:pnlPlanInversion, :frmInversionPlan:toolbarInversionPlan" >
+								<f:setPropertyActionListener target="#{controladorPlanInversion.planInversion}" value="#{varPlanInv}"/>
+							</p:commandButton>
+						</p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:dialog widgetVar="dlgEliminarPlanInversion" header="! Eliminar Plan Inversión" showEffect="explode">
+		<h:form id="fmrEliminarPlanInversio">
+			<h:outputText value="¿Está seguro que desea eliminar este Plan de Inversión?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorPlanInversion.eliminarInversionPlan()}" 
+				oncomplete="dlgEliminarPlanInversion.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarPlanInversion.hide()"/>
+		</h:form>
+	</p:dialog>
+	
+	
+	<p:dialog widgetVar="dlgBuscarInversionPlan" position="center"   header="INFORMACION INVERSIÓN">
+		<h:form id="frmBuscarInversionPlan">
+			<p:toolbar >
+				<p:toolbarGroup align="left">
+					<h:outputText value="Nombre: " />
+					<p:inputText id="txtNombre" value="#{controladorPlanInversion.nombreInversionPlanABuscar}"/>
+					<p:commandButton id="cmbBuscarNombre"  title="Buscar por Nombre" 
+									 value="Buscar"  icon="ui-icon-search"
+					                 process="@this, txtNombre" 
+					                 action="#{controladorPlanInversion.buscarInversionPlanPorNombre()}"
+					                 update=":frmBuscarInversionPlan:pnlTablaInversionPlan" />
+				    <p:separator/>
+					
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:commandButton id="cmbBuscarTodas" title="Cargar todas"
+							value="Todas" icon="ui-icon-search"
+							process="@this"
+							action="#{controladorPlanInversion.cargarListaInversionPlan()}"
+							update="pnlTablaInversionPlan"/>
+				</p:toolbarGroup>
+			</p:toolbar>
+			<br />
+			<p:panelGrid id="pnlTablaInversionPlan" columns="1">
+				<p:dataTable value="#{controladorPlanInversion.lstInversiones}" var="varInversionPlan"
+					paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10">
+					 <p:column headerText="DESCRIPCION">
+					 	<h:outputText value="#{varInversionPlan.descripcion}" />
+					 </p:column>
+					 <p:column headerText="Seleccionar">
+					 	<p:commandButton id="cmbSeleccionar" title="Seleccionar " icon="ui-icon-check"
+					 		process="@this"
+					 	    action="#{controladorPlanInversion.habilitarEditarInversionPlan()}"
+					 	    update=":frmInversionPlan:pnlInversionPlan,:frmInversionPlan:pnlListPlanInversion, :frmInversionPlan:toolbarInversionPlan"
+					 	    oncomplete="dlgBuscarInversionPlan.hide()"> 
+					 		<f:setPropertyActionListener target="#{controladorPlanInversion.inversion}" value="#{varInversionPlan}"/>
+					 	</p:commandButton>		 
+					 </p:column>
+				</p:dataTable>
+			</p:panelGrid>
+		</h:form>
+	</p:dialog>
+</ui:define>
+</ui:composition>
+</html>

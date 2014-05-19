@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+  <ui:composition template="/templates/templateLayout.xhtml">
+ 	<ui:define name="contenido">
+		<h:form id="frmBuscarInstitucion">
+			<p:growl id="growl" showDetail="true" autoUpdate="true"/> 
+			<p:toolbar >
+				<p:toolbarGroup align="center">
+					<h:outputText value="Nombre Institución: " />
+					<p:inputText id="txtNombre" value="#{controladorBuscarInstituciones.nombreABuscar}"/>
+					<p:commandButton id="cmbBuscarNombre"  title="Buscar por Nombre" 
+									 value="Buscar"  icon="ui-icon-search"
+					                 process="@this, txtNombre" 
+					                 action="#{controladorBuscarInstituciones.buscarPorNombres()}"
+					                 update="pnlTablaInstituciones,txtNombre"/>        
+					<p:separator/>                    
+					<h:outputText value="Identificación (AMIE): " />
+					<p:inputText id="txtIdentificacion" value="#{controladorBuscarInstituciones.identificacionABuscar}"/>
+					<p:commandButton id="cmbBuscarIdentificacion"  title="Buscar por Identificacion" 
+									 value="Buscar"  icon="ui-icon-search"
+					                 process="@this, txtIdentificacion" 
+					                 action="#{controladorBuscarInstituciones.buscarPorIdentificacion()}"
+					                 update="pnlTablaInstituciones,txtIdentificacion"/>    
+					</p:toolbarGroup>
+					
+			</p:toolbar>
+			
+			<br />
+			<p:panelGrid id="pnlTablaInstituciones"  columns="1">
+				
+				<p:dataTable value="#{controladorBuscarInstituciones.institucionDataModel}"  var="varInstitucion"
+					paginator="true" rows="5"     selection="#{controladorBuscarInstituciones.institucion}" selectionMode="single">
+					
+					 <p:ajax event="rowSelect" listener="#{controladorBuscarInstituciones.onRowSelect}"   
+                    update=":frmBuscarInstitucion:detalle :frmBuscarInstitucion:growl" oncomplete="InstDialogo.show()" />  
+        			
+        			<p:ajax event="rowUnselect" listener="#{controladorBuscarInstituciones.onRowUnselect}" update=":frmBuscarInstitucion:growl"/>  
+  
+       				 <f:facet name="header">  
+            				INSTITUCIONES BENEFICIADAS 
+        			</f:facet>  
+  
+					 <p:column headerText="CÓDIGO AMIE">
+					 	<h:outputText value="#{varInstitucion.identificacion}" />
+					 </p:column>
+					 <p:column headerText="NOMBRE DE LA INSTITUCIÓN">
+					 	<h:outputText value="#{varInstitucion.nombre}" />
+					 </p:column>
+					 <p:column headerText="PROVINCIA" filterBy="#{varInstitucion.provincia}">
+					 	<h:outputText value="#{varInstitucion.provincia}" />
+					 </p:column>
+					 <p:column headerText="CANTON" filterBy="#{varInstitucion.canton}">
+					 	<h:outputText value="#{varInstitucion.canton}" />
+					 </p:column>
+					 <p:column headerText="PARROQUIA" filterBy="#{varInstitucion.parroquia.nombre}">
+					 	<h:outputText value="#{varInstitucion.parroquia.nombre}" />
+					 </p:column>
+					 <p:column headerText="DIRECCIÓN">
+					 	<h:outputText value="#{varInstitucion.direccion}" />
+					 </p:column>
+					 
+				</p:dataTable>
+			</p:panelGrid>
+			
+			<p:dialog id="DialogoDespliegueInformacion" header="INSTITUCIÓN - DETALLE " widgetVar="InstDialogo" resizable="true"
+				  showEffect="fade" hideEffect="explode">
+				 <h:panelGrid id="detalle" columns="2" cellpadding="4" rowClasses="2">  
+		            <h:outputText value="Institución:"/>  
+		             <h:outputText value="#{controladorBuscarInstituciones.institucion.nombre}" />  
+		             <h:outputText value="Amie:"/>  
+		             <h:outputText value="#{controladorBuscarInstituciones.institucion.identificacion}" />
+		             <h:outputText value="Dirección:"/>  
+		             <h:outputText value="#{controladorBuscarInstituciones.institucion.direccion}" />  
+		             <h:outputText value="Latitud:"/>  
+		             <h:outputText value="#{controladorBuscarInstituciones.institucion.latitud}" />
+		             <h:outputText value="Longitud:"/>  
+		             <h:outputText value="#{controladorBuscarInstituciones.institucion.longitud}" />
+		             <h:outputText value="Provincia:"/>  
+		             <h:outputText value="#{controladorBuscarInstituciones.institucion.provincia}" />
+		        </h:panelGrid> 
+		</p:dialog>
+		</h:form>
+ 	</ui:define>
+  </ui:composition>
+</html>

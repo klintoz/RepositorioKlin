@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+
+
+<ui:define name="contenido">
+	<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmAtributoEquipo">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarAtributo" style="width:700px;">
+				<p:toolbarGroup align="left">
+					<p:commandButton id="cmbNuevo" title="Nuevo Atributo" value="Nuevo" icon="ui-icon-document"
+									 process="@this"
+									 action="#{controladorAtributosEquipo.nuevoAtributoEquipo}"
+									 update="toolbarAtributo,pnldatoAributo"/>
+									 
+					<p:commandButton id="cmbInsertar" title="Insertar Atributo" value="Insertar" icon="ui-icon-disk"
+									 process="@this,pnldatoAributo"
+									 action="#{controladorAtributosEquipo.insertarAtributosEquipos()}"
+									 update="frmAtributoEquipo"
+									 disabled="#{controladorAtributosEquipo.botonInsertarAtributoEquipo}"/>
+									 
+					<p:commandButton id="cmbActualizar" title="Actualizar Atributo" value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+									 process="@this,pnldatoAributo"
+									 action="#{controladorAtributosEquipo.actualizarAtributoEquipos()}"
+									 disabled="#{controladorAtributosEquipo.botonActualizarAtributoEquipo}"
+									 update=":frmAtributoEquipo"/>
+									 
+					<p:commandButton id="cmbEliminar" title="Eliminar Atributo" value="Eliminar" icon="ui-icon-trash"
+									 process="@this,pnlListaAtributos"
+									 action="#{controladorAtributosEquipo.abrirDialogoEliminarAtributos()}"
+									 disabled="#{controladorAtributosEquipo.botonEliminarAtributoEquipo}"
+									 /> 
+				</p:toolbarGroup>
+				<p:separator/>
+				<p:toolbarGroup align="ringht">
+					<p:inputText id="txtNombre" value="#{controladorAtributosEquipo.nombreDeAtributoABuscar}"/>
+					<p:commandButton id="cmbBuscarTexto" title="Buscar Por Texto"
+									 value="Buscar" icon="ui-icon-search"
+									 process="@this,txtNombre"
+									 action="#{controladorAtributosEquipo.buscarAtributoPorNombre()}"
+									 update="pnlListaAtributos,txtNombre"/>				 
+				</p:toolbarGroup>
+				<br/>
+			</p:toolbar>
+			<br/>
+			<p:panel header="DATOS ATRIBUTOS DE EQUIPO" style="max-width:400px;min-heigth:100px;">
+				<h:panelGrid id="pnldatoAributo" columns="2">
+					<h:outputText value="(**)Texto Despliegue:" />
+					<p:inputText value="#{controladorAtributosEquipo.atributoEquipo.textodespliegue}"/>
+					<h:outputText value="Obligatorio" />
+					<p:selectOneMenu value="#{controladorAtributosEquipo.idObligatorio}">
+						<f:selectItem itemLabel="--Seleccionar--" itemValue="0"/>
+					 	<f:selectItem itemLabel="Si" itemValue="1"/>
+					 	<f:selectItem itemLabel="No" itemValue="2"/>
+					</p:selectOneMenu>
+					<h:outputText value="Orden" />
+					<p:inputText value="#{controladorAtributosEquipo.atributoEquipo.orden}"/>
+				</h:panelGrid>
+			</p:panel>
+			<p:separator/>
+			<p:panelGrid id="pnlListaAtributos" columns="1">
+				<p:dataTable id="dtablaAtributos" value="#{controladorAtributosEquipo.lstAtribEquipos}" var="varAtributo"
+							 paginator="true" rows="5"
+							 paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+							 rowsPerPageTemplate="5,10">
+							 <f:facet name="header">
+							 	<h:outputText value="LISTA DE ATRIBUTOS" />
+							 </f:facet>
+							 <p:column  filterBy="#{varAtributo.textodespliegue}" sortBy="#{varAtributo.textodespliegue}">
+								<f:facet name="header">
+									<h:outputText value="TEXTO DESPLIEGUE" />
+								</f:facet>
+							 	<h:outputText value="#{varAtributo.textodespliegue}" />
+							 </p:column>
+							 <p:column headerText="ORDEN">
+							 	<h:outputText value="#{varAtributo.orden}" />
+							 </p:column>
+							  <p:column headerText="OBLIGATORIO">
+							 	<h:outputText value="#{varAtributo.obligatorio}" />
+							 </p:column>
+							 <p:column headerText="Seleccionar">
+							 	<p:commandButton id="cmdSeleccionar" title="Seleccionar"  icon="ui-icon-check"
+							 				  process="@this"
+							 				  action="#{controladorAtributosEquipo.habilitarEditarAtributoequipo()}"
+							 				  update=":frmAtributoEquipo:pnlListaAtributos,:frmAtributoEquipo:pnldatoAributo,:frmAtributoEquipo:toolbarAtributo">
+							  <f:setPropertyActionListener target="#{controladorAtributosEquipo.atributoEquipo}" value="#{varAtributo}"/>
+							</p:commandButton>
+							 </p:column>
+				</p:dataTable>
+			</p:panelGrid>
+		</h:form>
+			<p:dialog widgetVar="dlgEliminarAtributo" header="! Eliminar Atributo"  showEffect="explode">
+				<h:form id="fmrEliminarAtributo">
+					<h:outputText value="¿Está seguro que desea eliminar este Atributo?" />
+					<p:commandButton value="Aceptar"
+									 process="@this"
+									 action="#{controladorAtributosEquipo.eliminarAtributoEquipo}"
+									 oncomplete="dlgEliminarAtributo.hide()"
+									 update=":frmAtributoEquipo"/>
+					<p:commandButton value="Cancelar"  process="@this" oncomplete="dlgEliminarAtributo.hide()"/>
+				</h:form>
+		</p:dialog>
+		<p:dialog widgetVar="dlgBuscarAtributo" position="center" header="INFORMACION DE ATRIBUTOS">
+			<h:form id="frmBuscarAtributo">
+				<p:toolbar>
+					<p:toolbarGroup align="left">
+						<h:outputText value="Texto de Despliego:" />
+						<p:inputText id="txtNombre" value="#{controladorAtributosEquipo.nombreDeAtributoABuscar}"/>
+						<p:commandButton id="cmbBuscarTexto" title="Buscar Por Texto"
+										 value="Buscar" icon="ui-icon-search"
+										 process="@this,txtNombre"
+										 action="#{controladorAtributosEquipo.buscarAtributoPorNombre()}"
+										 update="frmBuscarAtributo"/> 
+					</p:toolbarGroup>				
+				</p:toolbar>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+  </ui:composition>
+</html>

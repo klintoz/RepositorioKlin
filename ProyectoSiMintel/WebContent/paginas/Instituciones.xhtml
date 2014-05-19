@@ -1,0 +1,601 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/templates/clearTemplate.xhtml"> 
+<ui:define name="contenido">
+	<h:form id="frmInstituciones">
+		<p:growl autoUpdate="true"/>
+		<p:toolbar id="toolbarInstituciones" style="width:800px;">				
+			<p:toolbarGroup align="right">
+				<p:commandButton id="cmbNuevo"   title="Nueva Institución"  value="Nueva" icon="ui-icon-document"
+									 process="@this"
+									 action="#{controladorInstituciones.nuevaInstitucion}" 
+									 update="pnlDatosInstitucion,toolbarInstituciones" />
+					<p:separator/>
+					<p:commandButton id="cmbInsertar" title="Insertar Intitución" value="Insertar" icon="ui-icon-disk"
+									 process="@this, frmInstituciones" 
+									 action="#{controladorInstituciones.insertarInstitucion}" 
+									 update="pnlDatosInstitucion"
+									 disabled="#{controladorInstituciones.botonInsertarInstitucion}"/>
+									 
+					<p:commandButton id="cmbActualizar"  title="Actualizar Institucion" value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+					                 process="@this, frmInstituciones"
+									 action="#{controladorInstituciones.actualizarInstitucion}"
+									 update="frmInstituciones, pnlDatosInstitucion, toolbarInstituciones"
+									 disabled="#{controladorInstituciones.botonActualizarInstitucion}"/>
+									 
+					<p:commandButton id="cmbEliminar" title="Eliminar Institucion"  value="Eliminar"  icon="ui-icon-trash"
+					                 process="@this"
+					                 action="#{controladorInstituciones.abirDialogoEliminarInstitucion}"
+					                 disabled="#{controladorInstituciones.botonEliminarInstitucion}"/>
+					<p:separator/>
+					<p:commandButton id="cmbIrBuscar" title="Buscar" value="Buscar" icon="ui-icon-search" 
+									process="@this"
+									action="#{controladorInstituciones.abrirDialogoBuscarInstitucion}"
+									update=":frmBuscarInstitucion"/>
+			</p:toolbarGroup>
+		</p:toolbar>
+		<br/>
+		
+		<p:panel header="DATOS INSTITUCIÓN " style="max-width:900px;min-height:150px;" id="pnlDatosInstitucion">
+			<h:panelGrid columns="4">
+				<h:outputText value="(**) NOMBRE :"/>
+				<p:inputText value="#{controladorInstituciones.institucion.nombre}" size="40"/> 
+				<h:outputText value="(**) CODIGO IDENTIFICACION:" />
+				<p:inputText value="#{controladorInstituciones.institucion.identificacion}"/>
+				<h:outputText value="(*) DIRECCION :" />
+				<p:inputText value="#{controladorInstituciones.institucion.direccion}" size="40"/>
+				<h:outputFormat value="COMENTARIO :" />
+				<p:inputTextarea value="#{controladorInstituciones.institucion.comentario}"
+					rows="1" cols="30" counter="counter" maxlength="100" 
+					counterTemplate="{0} caracteres restantes." autoResize="false"/>
+				<h:outputText value="" />
+				<h:outputText value="" />
+				<h:outputText value="" />
+				<h:outputText id="counter" />
+			</h:panelGrid >
+			<p:separator/>
+			<h:panelGrid columns="2">
+				
+				<p:commandButton id="btnBuscarContacto" title="Buscar Contacto" value="Agendas de Contacto" icon="ui-icon-search"
+								process="@this, frmInstituciones"
+								action="#{controladorInstituciones.abrirDialogoBuscarContacto()}"
+								update=":frmBusquedaContacto"/>
+				
+				<h:panelGrid id="pnlLisContactosInstitucion">
+						<p:dataTable value="#{controladorInstituciones.lstContactos}" var="varContacto"
+									 >
+							<f:facet name="header">
+				 				<h:outputText value="CONTACTOS DE LA INSTITUCIÓN" />
+				 			</f:facet>				 			
+				 			 <p:column headerText="NOMBRE">						 		
+						 		<h:outputText value="#{varContacto.datoscontacto.nombre}"/>
+					  		</p:column>					  		
+					  		<p:column  headerText="IDENTIFICACIÓN">
+					  			<h:outputText value="#{varContacto.datoscontacto.identificacion}" />
+					  		</p:column>
+					  		<p:column  headerText="AGENDA">
+					  			<p:dataList id="dataListAgenda" value="#{varContacto.datoscontacto.mediocontactos}"
+					  						var="varMedio">
+					  						#{varMedio.tipomedio.nombre} : #{varMedio.datocontacto}
+					  			</p:dataList>					  			
+					  			
+					  		</p:column>
+					  		<p:column headerText="VER CONTACTO">
+									<p:commandButton id="cmbVerContacto" title="Ver Contacto" icon="ui-icon-person"
+										process="@this" 
+										action="#{controladorInstituciones.verAgendaContacto()}"
+										update=":frmBusquedaContacto">
+										<f:setPropertyActionListener target="#{controladorInstituciones.contacto}" value="#{varContacto}"></f:setPropertyActionListener>										
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="QUITAR">
+					  				<p:commandButton id="cmbQuitarContacto" title="Quitar Contacto" icon="ui-icon-trash" 
+					  					 process="@this"
+					  					 action="#{controladorInstituciones.eliminarFilaContacto()}"
+					  					 update=":frmBusquedaContacto,:frmInstituciones:pnlLisContactosInstitucion">
+					  					<f:setPropertyActionListener target="#{controladorInstituciones.contacto}" value="#{varContacto}"></f:setPropertyActionListener>		  				
+					  				</p:commandButton>
+					  		</p:column>
+						</p:dataTable>
+					</h:panelGrid>
+				 
+					</h:panelGrid>
+			
+			<p:separator/>
+			<p:accordionPanel multiple="true">
+				<p:tab title=" Ubicación y Georeferencia Institución"  titleStyleClass="">
+			<h:panelGrid columns="8">
+				<h:outputText value="(*) PAIS: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idPais}" id="selectPais">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstPaises}" var="varPais"
+						itemValue="#{varPais.paisid}" itemLabel="#{varPais.nombre}"/>
+					<p:ajax event="change" process="selectPais"
+						listener="#{controladorInstituciones.cargarListaProvincias()}"
+						update="selectProvincia"/>
+				</p:selectOneMenu>
+				<h:outputText value="(*) PROVINCIA: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idProvincia}" id="selectProvincia">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstProvincias}" var="varProvincia"
+					itemValue="#{varProvincia.provinciaid}" itemLabel="#{varProvincia.nombre}"/>
+					<p:ajax event="change" process="selectProvincia"
+						listener="#{controladorInstituciones.cargarListaCantones()}"
+						update="selectCanton"/>
+				</p:selectOneMenu>
+				<h:outputText value="(*) CANTON: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idCanton}" id="selectCanton">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstCatones}" var="varCanton"
+					itemValue="#{varCanton.cantonid}" itemLabel="#{varCanton.nombre}"/>
+					<p:ajax event="change" process="selectCanton"
+						listener="#{controladorInstituciones.cargarListaParroquias()}"
+						update="selectParroquia"/>
+				</p:selectOneMenu>
+				<h:outputText value="(*) PARROQUIA: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idParroquia}" id="selectParroquia">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstParroquias}" var="varParroquia"
+					itemValue="#{varParroquia.parroquiaid}" itemLabel="#{varParroquia.nombre}"/>
+				</p:selectOneMenu>
+				<h:outputText value="" />
+				<h:outputText value="" />
+			</h:panelGrid>
+		<p:separator/>
+			<h:panelGrid columns="6">
+			  	<h:outputText value="LATITUD :" />
+				<p:inputText value="#{controladorInstituciones.institucion.latitud}" />
+				<h:outputText value="LONGITUD :" />
+				<p:inputText value="#{controladorInstituciones.institucion.longitud}" />
+				<h:outputText value="" />
+				<h:outputText value="" />
+				<h:outputText value="MERIDIANO" />
+				<p:selectOneMenu value="#{controladorInstituciones.idMeridiano}">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItem itemLabel="17M" itemValue="1"/>
+					<f:selectItem itemLabel="18M" itemValue="2"/>
+				</p:selectOneMenu>
+				<h:outputText value="LATITUDHEX:" />
+				<p:inputText value="#{controladorInstituciones.institucion.latitudhex}" />
+				<h:outputText value="LONGITUDHEX :" />
+				<p:inputText value="#{controladorInstituciones.institucion.longitudhex}" />
+			  </h:panelGrid>
+			  </p:tab>
+			</p:accordionPanel>
+		<p:separator/>
+			<p:accordionPanel multiple="true">
+			<p:tab title="Tipo de Institución">
+			<h:panelGrid columns="8">
+			<h:outputText value="(*) TIPO INSTITUCIÓN: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idTipoInstitucion}">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstTipoinstituciones}" var="varTipoInst"
+						itemValue="#{varTipoInst.tipoinstitucionid}" itemLabel="#{varTipoInst.nombre}"/>
+					
+				</p:selectOneMenu>
+				<h:outputText value="(*) TIPO SOSTENIMIENTO: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idTipoSostenimiento}">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstTipoSostenimientos}" var="varTiposos"
+						itemValue="#{varTiposos.tiposostenimientoid}" itemLabel="#{varTiposos.nombre}"/>
+					
+				</p:selectOneMenu>
+				<h:outputText value="(*) ESTADO: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idEstado}">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstEstado}" var="varEst"
+						itemValue="#{varEst.estadoid}" itemLabel="#{varEst.nombre}"/>
+				</p:selectOneMenu>
+			</h:panelGrid>
+			</p:tab>
+			</p:accordionPanel>
+		<p:separator/>
+			<p:accordionPanel multiple="true">
+			<p:tab title="Tipo de Inversión Institución">
+			<h:panelGrid columns="8">
+				<h:outputText value="(*) PLAN: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idPlan}" id="selectPlan"> 
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstPlanes}" var="varPlan"
+						itemValue="#{varPlan.planid}" itemLabel="#{varPlan.descripcion}"/>
+					<p:ajax event="change" process="selectPlan"
+						listener="#{controladorInstituciones.cargarListaProgramas()}"
+						update="selectPrograma"/>
+				</p:selectOneMenu>
+				<h:outputText value="(*) PROYECTO: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idProyecto}" id="selectProyecto">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstProyectos}" var="varProy"
+						itemValue="#{varProy.proyectoid}" itemLabel="#{varProy.descripcion}"/>
+					<p:ajax event="change" process="selectProyecto"
+						listener="#{controladorInstituciones.cargarListaConvenio()}"
+						update="selectConvenio"/>
+				</p:selectOneMenu>
+				<h:outputText value="" />
+				<h:outputText value="" />
+				<h:outputText value="" />
+				<h:outputText value="" />
+				<h:outputText value="(*) PROGRAMA: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idPrograma}" id="selectPrograma">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstProgramas}" var="varProg"
+						itemValue="#{varProg.programaid}" itemLabel="#{varProg.descripcion}"/>
+					<p:ajax event="change" process="selectPrograma"
+						listener="#{controladorInstituciones.cargarListaProyectos()}"
+						update="selectProyecto"/>
+				</p:selectOneMenu>
+				<h:outputText value="(*) CONVENIO: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idConvenio}" id="selectConvenio">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstConvenios}" var="varConv"
+						itemValue="#{varConv.convenioid}" itemLabel="#{varConv.descripcion}"/>
+					<p:ajax event="change" process="selectConvenio"
+						listener="#{controladorInstituciones.cargarListaInversion()}"
+						update="selectInversion"/>	
+				</p:selectOneMenu>
+				<h:outputText value="(*) INVERSION: " />
+				<p:selectOneMenu value="#{controladorInstituciones.idInversion}" id="selectInversion">
+					<f:selectItem itemLabel="- -  Seleccionar  - -" itemValue="0"/>
+					<f:selectItems value="#{controladorInstituciones.lstInversiones}" var="varInv"
+						itemValue="#{varInv.inversionid}" itemLabel="#{varInv.descripcion}"/>
+				</p:selectOneMenu>
+				
+			</h:panelGrid>
+			</p:tab>
+			</p:accordionPanel>
+			<p:separator/>
+			
+			<p:commandButton id="cmbIrAInvEquipamiento" title="Inversión Equipamiento" value="Inversión Equipamiento" icon="ui-icon-suitcase"
+									process="@this"
+									action="#{controladorInstituciones.abrirDialogoInversionEquipamiento()}"
+									update=":frmInversionEquipamiento"/>
+									
+			<p:commandButton id="cmbIrAInvConectividad" title="Inversión Conectividad" value="Inversión Conectividad" icon="ui-icon-signal-diag"
+									process="@this"
+									action="#{controladorInstituciones.abrirDialogoInversionConectividad()}"
+									update=":frmInvConectividad"/>						
+			
+	  </p:panel>
+	  
+	</h:form>
+	
+	<p:dialog widgetVar="dlgEliminarInstituciones" header="! Eliminar Institución" showEffect="explode">
+		  <h:form id="fmrEliminarInstitucion">
+			<h:outputText value="¿Está seguro que desea eliminar este Institucion?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorInstituciones.eliminarInstitucion}" 
+				update=":frmInstituciones" 
+				oncomplete="dlgEliminarInstitucion.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarInstitucion.hide()"/>
+		  </h:form>
+	</p:dialog>
+		
+	<p:dialog widgetVar="dlgBuscarInstitucion" position="center"   header="INFORMACION DE INSTITUCIONES">
+		<h:form id="frmBuscarInstitucion">
+			<p:toolbar>
+				<p:toolbarGroup align="right">
+				  <h:outputText value=" TOTAL INSTITUCIONES:   " />
+				  <h:outputText value="#{controladorInstituciones.numeroInstituciones}" />
+				</p:toolbarGroup>
+			</p:toolbar>
+			<p:toolbar >
+				<p:toolbarGroup align="left">
+					<h:outputText value="Nombre: " />
+					<p:inputText id="txtNombre" value="#{controladorInstituciones.nombreABuscar}"/>
+					<p:commandButton id="cmbBuscarNombre"  title="Buscar por Nombre" 
+									 value="Buscar"  icon="ui-icon-search"
+					                 process="@this, txtNombre" 
+					                 action="#{controladorInstituciones.buscarPorNombres()}"
+					                 update="pnlTablaInstituciones" />
+				    <p:separator/>
+					<h:outputText value="Identificación: " />
+					<p:inputText id="txtIdentificacion" value="#{controladorInstituciones.identificacionABuscar}"/>
+					<p:commandButton id="cmbBuscarIdentificacion"  title="Buscar por Identificacion" 
+									 value="Buscar"  icon="ui-icon-search"
+					                 process="@this, txtIdentificacion" 
+					                 action="#{controladorInstituciones.buscarPorIdentificacion()}"
+					                 update="pnlTablaInstituciones" />
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:commandButton id="cmbBuscarTodas" title="Cargar todas"
+							value="Todas" icon="ui-icon-search"
+							process="@this"
+							action="#{controladorInstituciones.cargarListaInstituciones()}"
+							update="pnlTablaInstituciones"/>
+				</p:toolbarGroup>
+			</p:toolbar>
+			<br />
+			<p:panelGrid id="pnlTablaInstituciones"  columns="1">
+				<p:dataTable value="#{controladorInstituciones.lstInstituciones}"  var="varInstitucion"
+					paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10">
+					 <p:column headerText="IDENTIFICACION">
+					 	<h:outputText value="#{varInstitucion.identificacion}" />
+					 </p:column>
+					 <p:column headerText="NOMBRE">
+					 	<h:outputText value="#{varInstitucion.nombre}" />
+					 </p:column>
+					 <p:column headerText="DIRECCION">
+					 	<h:outputText value="#{varInstitucion.direccion}" />
+					 </p:column>
+					 <p:column headerText="PROVINCIA" filterBy="#{varInstitucion.provincia}">
+					 	<h:outputText value="#{varInstitucion.provincia}" />
+					 </p:column>
+					 <p:column headerText="CANTON" filterBy="#{varInstitucion.canton}">
+					 	<h:outputText value="#{varInstitucion.canton}" />
+					 </p:column>
+					 <p:column headerText="PARROQUIA" filterBy="#{varInstitucion.parroquia.nombre}">
+					 	<h:outputText value="#{varInstitucion.parroquia.nombre}" />
+					 </p:column>
+					 <p:column headerText="Seleccionar">
+					 	<p:commandButton id="cmbSeleccionar" title="Seleccionar " icon="ui-icon-check"
+					 		process="@this"
+					 	    action="#{controladorInstituciones.habilitarEditarInstitucion()}"
+					 	    update=":frmInstituciones:pnlDatosInstitucion,:frmInstituciones:toolbarInstituciones"
+					 	    oncomplete="dlgBuscarInstitucion.hide()"> 
+					 		<f:setPropertyActionListener target="#{controladorInstituciones.institucion}" value="#{varInstitucion}"/>
+					 	</p:commandButton>	
+	                  	<p:commandButton id="cmbNota" title="Beneficiado en:" icon="ui-icon-note"
+					 		process="@this"
+					 	    action="#{controladorInstituciones.abrirDialogoInstBeneficadas()}"
+					 	    update=":frmProyectosBeneficiados">
+					 	    <f:setPropertyActionListener target="#{controladorInstituciones.institucion}" value="#{varInstitucion}"/>
+					 	</p:commandButton>
+					 </p:column>
+				</p:dataTable>
+			</p:panelGrid>
+		</h:form>
+	</p:dialog>
+	
+	<p:dialog widgetVar="dlgInversionEquipaminento" position="center" header="INVERSION DE EQUIPAMIENTO">
+		<h:form id="frmInversionEquipamiento">
+			<p:toolbar>
+				<p:toolbarGroup align="ringth">
+					<h:outputText value=" EQUIPAMIENTO ENTREGADO" />
+				</p:toolbarGroup>
+		</p:toolbar>
+		</h:form>	
+	</p:dialog>
+	<p:dialog widgetVar="dlgInvConectividad" position="center" header="INVERSIÓN DE CONECTIVIDAD">
+		<h:form id="frmInvConectividad">
+			<p:toolbar>
+				<p:toolbarGroup align="center">
+					<h:outputText value=" CONECTIVIDAD ENTREGADA" />
+				</p:toolbarGroup>
+			</p:toolbar>
+			
+		</h:form>
+	</p:dialog>
+		
+	<p:dialog widgetVar="dlgInstBeneficadoEn" position="center" header="INSTITUCIÓN BENEFICIADA EN LOS SIGUIENTES: ">
+		<h:form id="frmProyectosBeneficiados">
+			<p:toolbar>
+				<p:toolbarGroup align="center">
+					<h:outputText value=" PROYECTOS Y CONVENIOS" />
+				</p:toolbarGroup>
+			</p:toolbar>
+			
+			<p:panelGrid id="pnlTablaInstBenefVarInversiones" columns="1">
+			
+				<p:dataTable value="#{controladorInstituciones.lstInstBeneficiadas}" var="varInstBen">
+						<p:column headerText="Inversion">
+							<h:outputText value="#{varInstBen.inversion.descripcion}" />
+						</p:column>
+						<p:column headerText="Proyecto">
+							<h:outputText value="#{varInstBen.inversion.convenio.proyecto.descripcion}" />
+						</p:column>
+						<p:column headerText="Convenio">
+							<h:outputText value="#{varInstBen.inversion.convenio.descripcion}" />
+						</p:column>
+						<p:column headerText="Tipo de Inversion">
+							<h:outputText value="#{varInstBen.inversion.tipoinversion.descripcion}" />
+						</p:column>
+						<p:column headerText="Seleccionar">
+			                  	<p:commandButton id="cmbNotaB" title="Beneficiado en:" icon="ui-icon-check"
+							 		process="@this"
+							 		action="#{controladorInstituciones.habilitarEditarInstitucion()}"
+							 	    update=":frmInstituciones:pnlDatosInstitucion,:frmInstituciones:toolbarInstituciones"
+							 	    oncomplete=":dlgInstBeneficadoEn.hide(),:dlgBuscarInstitucion.hide()">
+							 	    <f:setPropertyActionListener target="#{controladorInstituciones.instBeneficiada}" value="#{varInstBen}"/>
+							 	</p:commandButton>
+						</p:column>
+				</p:dataTable>
+			</p:panelGrid>
+		</h:form>
+	</p:dialog>
+	
+	<p:dialog widgetVar="dlgBuscarContacto" position="center" header="REGISTRO DE CONTACTOS"  maximizable="1000px">
+		<h:form id="frmBusquedaContacto">
+			<p:toolbar>
+				<p:toolbarGroup align="center">
+					<h:outputText value=" DATOS DE CONTACTO" />
+				</p:toolbarGroup>
+			</p:toolbar>	
+			<h:panelGrid id="pnlgContacto" columns="2" >
+		   		<p:panel id="pnlbuscontactos">
+			   		<p:commandButton id="cmbAbrirAgregarContacto" title="Agregar Nuevo Contacto" 
+							value="CREAR CONTACTO" icon="ui-icon-person"
+							process="@this"	
+							action="#{controladorInstituciones.mostrarPanelGuardar()}"						
+							update=":frmBusquedaContacto:"
+							/>
+					<br />
+		   			<p:toolbar>
+							<p:toolbarGroup align="center">
+							<h:outputText value=" BUSQUEDA DE CONTACTO" />
+							</p:toolbarGroup>
+						<p:separator/>
+							<p:toolbarGroup align="right">
+								<h:panelGrid columns="3" id="pnlformasDeBusqueda">
+								<p:selectOneRadio value="#{controladorInstituciones.seleccionBusqueda}">
+									<f:selectItem itemValue="1" itemLabel="Nombre"/>
+									<f:selectItem itemValue="2" itemLabel="Identificacion"/>
+								</p:selectOneRadio>
+								<p:inputText value="#{controladorInstituciones.nombreOidentificacion}"/>
+								<p:commandButton id="cmbBuscarContacto" title="Buscar Contacto" 
+												 value="Buscar" icon="ui-icon-search"
+												 process="@this,pnlformasDeBusqueda"
+												 action="#{controladorInstituciones.formasdeBusqueda()}"
+												 update=":frmBusquedaContacto:pnlLisContactos"/>
+								</h:panelGrid>
+							</p:toolbarGroup>
+					</p:toolbar>
+					<br />
+					<h:panelGrid id="pnlLisContactos">
+						<p:dataTable id="dtablabusContacto" value="#{controladorInstituciones.lstDatoscontactos}" var="varDatoContacto"
+									 paginator="true" rows="5"
+									 paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+									 rowsPerPageTemplate="5,10,15">
+							<f:facet name="header">
+				 				<h:outputText value="CONTACTOS DE INSTITUCIONES BENEFICIADAS" />
+				 			</f:facet>
+				 			
+				 			 <p:column filterBy="#{varDatoContacto.nombre}" sortBy="#{varDatoContacto.nombre}" >
+						 		<f:facet name="header">
+						 			<h:outputText value="NOMBRE" />
+						 		</f:facet>
+						 		<h:outputText value="#{varDatoContacto.nombre}"/>
+					  		</p:column>
+					  		
+					  		<p:column  filterBy="#{varDatoContacto.identificacion} " sortBy="#{varDatoContacto.identificacion}">
+					  			<f:facet name="header">
+						 			<h:outputText value="IDENTIFICACIÓN" />
+						 		</f:facet>
+					  			<h:outputText value="#{varDatoContacto.identificacion}" />
+					  		</p:column>
+					  		<p:column headerText="VER AGENDA">
+									<p:commandButton id="cmbver" title="Ver Agenda" icon="ui-icon-person"
+										process="@this" 
+										action="#{controladorInstituciones.mostrarPanelActualizar()}"
+										update=":frmBusquedaContacto:pnlEdicionContacto :frmBusquedaContacto:pnlgMedioContacto: :frmBusquedaContacto:pnlListmedioContacto" >
+										<f:setPropertyActionListener target="#{controladorInstituciones.datocontacto}" value="#{varDatoContacto}"/>
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="SELECCIONAR">
+					  			<p:commandButton id="cmbSelecBusCont" title="ver Informacion" icon="ui-icon-check" 
+					  				process="@this, :frmInstituciones"
+					  				action="#{controladorInstituciones.seleccionarDatoContacto()}"
+					  				update=":frmInstituciones:pnlLisContactosInstitucion"
+					  				oncomplete=":dlgBuscarContacto.hide()">
+					  				<f:setPropertyActionListener target="#{controladorInstituciones.datocontacto}" value="#{varDatoContacto}"></f:setPropertyActionListener>
+					  			</p:commandButton>
+					  		</p:column>
+						</p:dataTable>
+					</h:panelGrid>
+					
+		   		</p:panel>
+		   		
+		   		<p:panel id="pnlEdicionContacto" visible="#{controladorInstituciones.visiblepnlEdicionContacto}">
+		   			<p:toolbar id="toolbarEditarcontacto">
+							<p:toolbarGroup align="center">
+							<h:outputText id="txtNombreContacto" value="AGENDA DE: #{controladorInstituciones.datocontacto.nombre}" style="font-size:20px"/>
+							
+							</p:toolbarGroup>
+							<p:separator/>
+							<p:toolbarGroup align="right">
+								<p:commandButton id="cmbNuevo"   title="Nuevo Contacto"  value="Nuevo Contacto" icon="ui-icon-document"
+									 process="@this"
+									 action="#{controladorInstituciones.habilitarGuardarContacto()}" 
+									 update="pnlEdicionContacto" />
+								<p:commandButton id="cmbGuardarContacto" title="Guardar Contacto" value="Guardar" icon="ui-icon-disk"
+												 process="@this,pnlEdicionContacto"
+												 action="#{controladorInstituciones.insertarDatoContacto()}"
+												 update="frmBusquedaContacto, pnlLisContactos"
+												 disabled="#{controladorInstituciones.botonInsertarDatosContacto}"/>
+												 
+								<p:commandButton id="cmbActualizarContacto" title="Actualizar Contacto" value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+												 process="@this,pnlEdicionContacto"
+												 action="#{controladorInstituciones.actualizarDatoContactos()}"
+												 update="frmBusquedaContacto,:frmInstituciones:pnlLisContactosInstitucion"
+												 disabled="#{controladorInstituciones.botonActualizarDatosContacto}"/>
+							</p:toolbarGroup>
+					</p:toolbar>
+		   			<h:panelGrid  id="pngEdicion" >
+		   			<p:panel header="DATOS CONTACTO">
+		   			<h:panelGrid id="pntgDatoContacto" columns="2">
+						<h:outputText value="(*) NOMBRE"/>
+						<p:inputText value="#{controladorInstituciones.datocontacto.nombre}" onkeyup="this.value=this.value.toUpperCase();">
+							<p:ajax event="keyup" update="txtNombreContacto" ></p:ajax>
+						</p:inputText>
+						<h:outputText value="(**) IDENTIFICACIÓN" />
+						<p:inputText value="#{controladorInstituciones.datocontacto.identificacion}"/>
+					</h:panelGrid>
+					</p:panel>
+					<p:panel header="ITEM DE AGENDA">
+						<h:panelGrid id="pnlgMedioContacto" columns="2">
+								<h:outputText value="(*) MEDIO " />
+								<p:selectOneMenu value="#{controladorInstituciones.idTipoMedio}" id="oneMenuTipoCont">
+									<f:selectItem  itemLabel="--Seleccione-" itemValue="0"/>
+									<f:selectItems value="#{controladorInstituciones.lstTipoMedio}" var="varTipoM"
+												   itemValue="#{varTipoM.tipomedioid}" itemLabel="#{varTipoM.nombre}"/>
+								</p:selectOneMenu>
+								<h:outputText value="(**) DATO" />
+								<p:inputText value="#{controladorInstituciones.mediocontacto.datocontacto}"/>
+								
+								<p:commandButton title="Agregar ítem a la Agenda"
+							 	process="@this,pnlgMedioContacto, pntgDatoContacto"
+							 	action="#{controladorInstituciones.agregarMedioContacto()}"
+							 	update="frmBusquedaContacto"
+							 	disabled="#{controladorInstituciones.botonInsertarMedioContacto}"
+							 	icon="ui-icon-plusthick"/>
+								
+								<p:commandButton title="Actualizar ítem en la Agenda"
+							 	process="@this, pnlgMedioContacto, pntgDatoContacto"
+							 	action="#{controladorInstituciones.actualizarMedioContacto()}"		
+							 	update="pnlListmedioContacto, pnlgMedioContacto, toolbarEditarcontacto,:frmInstituciones:pnlLisContactosInstitucion"					 	
+							 	disabled="#{controladorInstituciones.botonActualizarMedioContacto}"
+							 	icon="ui-icon-arrowreturn-1-s"/>
+						</h:panelGrid>
+						<h:panelGrid id="pnlListmedioContacto">
+							<p:dataTable id="dtablaMedioContac" value="#{controladorInstituciones.lstMediosContactos }" var="varlistMcont"
+										 paginator="true" rows="5"
+										 paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+										 rowsPerPageTemplate="5,10">
+								<f:facet name="header">
+									<h:outputText value="AGENDA CONTACTO " />
+								</f:facet>
+								<p:column headerText="Nombre">
+									<h:outputText value="#{varlistMcont.datoscontacto.nombre}" />
+								</p:column>								
+								<p:column headerText="Tipo Medio">
+									<h:outputText value="#{varlistMcont.tipomedio.nombre}" />
+								</p:column>
+								<p:column headerText="Contacto">
+									<h:outputText value="#{varlistMcont.datocontacto}" />
+								</p:column>
+								<p:column headerText="Editar">
+									<p:commandButton id="cmbSeleccionar" title="Editar" icon="ui-icon-pencil"
+										process="@this" 
+										action="#{controladorInstituciones.habilitarActualizarMedioContacto()}"
+										update=":frmBusquedaContacto:pnlEdicionContacto">
+										<f:setPropertyActionListener target="#{controladorInstituciones.mediocontacto}" value="#{varlistMcont}"/>
+										<f:setPropertyActionListener target="#{controladorInstituciones.idTipoMedio}" value="#{varlistMcont.tipomedio.tipomedioid}"/>
+									</p:commandButton>
+								</p:column>
+								<p:column headerText="Eliminar">
+									<p:commandButton id="cmbEliminar" title="Eliminar" icon="ui-icon-trash"
+										process="@this" 
+										action="#{controladorInstituciones.eliminarFilaMedioContacto()}"
+										update=":frmBusquedaContacto:pnlListmedioContacto"
+										disabled="#{controladorInstituciones.botonEliminarMedioContacto}">
+										<f:setPropertyActionListener target="#{controladorInstituciones.mediocontacto}" value="#{varlistMcont}"/>										
+									</p:commandButton>
+								</p:column>
+							</p:dataTable>
+						</h:panelGrid>
+					</p:panel>
+		   			</h:panelGrid>
+		   		</p:panel>
+			</h:panelGrid>
+		</h:form>
+	</p:dialog>
+</ui:define>
+</ui:composition>
+</html>

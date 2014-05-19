@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<h:outputText value="#{controladorFiltro.filtro}" />
+	<title><ui:insert name="tituloPagina">Coloque el titulo de la pagina</ui:insert></title>
+	<h:outputScript name="soloNumeros.js" library="js"></h:outputScript>
+	<link href="#{request.contextPath}/css/general.css" rel="stylesheet"
+		type="text/css" />
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+</h:head>
+<h:body>
+	<p:hotkey bind="f1" update=":frmTodo:menuOverlay"
+		actionListener="#{controladorMenu.abrirMenu}" />
+
+	<p:hotkey bind="f2" update=":frmTodo:menuOverlay"
+		actionListener="#{controladorMenu.cerrarMenu}" />
+
+	<p:notificationBar position="top" effect="slide" widgetVar="menu"
+		id="menuOverlay">
+		<p:dock position="top" id="menu_top" proximity="30">
+			<c:forEach var="var" items="#{controladorMenu.menus}">
+				<p:menuitem value="#{var.nombre}" icon="#{var.icon}"
+					styleClass="shadow" action="#{controladorMenu.cambiarSubMenu()}"
+					update=":frmStk:stkBot">
+					<f:setPropertyActionListener target="#{menuDataManager.menuClick}"
+						value="#{var}" />
+				</p:menuitem>
+			</c:forEach>
+
+			<p:menuitem value="#{controladorMenu.menuLogout.nombre}"
+				icon="#{controladorMenu.menuLogout.icon}"
+				action="#{usuarioDataManager.logout()}" />
+		</p:dock>
+	</p:notificationBar>
+	<p:growl autoUpdate="true" />
+	<div id="contenedor">
+		<div id="top">
+			<div id="header">
+				<div id="menu_top">
+					<h:form id="frmMenuTop">
+					</h:form>
+				</div>
+				<div id="banners_top">
+					<div id="informacion">
+						<p:galleria value="#{controladorBanner.banners}" var="var"
+							effect="slide" effectSpeed="1000" panelWidth="750"
+							panelHeight="210" filmstripPosition="bottom" frameWidth="230"
+							frameHeight="50" showCaptions="false" showOverlays="true"
+							id="galeriaBanner">
+
+							<p:graphicImage value="#{var.imagen}" title="#{var.nombre}"
+								cache="false" />
+
+							<p:galleriaOverlay>
+								<h:panelGrid onclick="window.open('#{var.url}','ClearMinds')"
+									style="width:100%; height:100%; cursor:pointer;"></h:panelGrid>
+							</p:galleriaOverlay>
+						</p:galleria>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="mid">
+			<div id="contenido">
+				<ui:insert name="contenido"></ui:insert>
+			</div>
+		</div>
+		<div id="bot"></div>
+	</div>
+	<h:form id="frmStk">
+		<p:stack icon="/imagenes/icons/stack.png" id="stkBot"
+			rendered="#{controladorMenu.pintarSubmenus()}">
+			<c:forEach var="var" items="#{controladorMenu.subMenus}">
+				<p:menuitem value="#{var.nombre}" icon="#{var.icon}"
+					url="#{var.url}" />
+			</c:forEach>
+		</p:stack>
+	</h:form>
+</h:body>
+</html>

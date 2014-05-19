@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmProyecto">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarProyecto" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nueva Proyecto" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorProyecto.nuevoProyecto}"
+			             				  update="toolbarProyecto, pnlDatosProyecto"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Proyecto" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlDatosProyecto" 
+						 				  action="#{controladorProyecto.insertarProyecto}" 
+						 				  update="frmProyecto"
+						 				  disabled="#{controladorProyecto.botonInsertarProyecto}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Proyecto"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlDatosProyecto"
+						 				  action="#{controladorProyecto.actualizarProyecto}" 
+						 				  disabled="#{controladorProyecto.botonActualizarProyecto}"
+						 				  update=":frmProyecto:pnlListaProyecto"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Proyecto" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorProyecto.abrirDialogoEliminarProyecto}"
+					                      disabled="#{controladorProyecto.botonEliminarProyecto}"/> 
+					                      
+					      <p:commandButton id="cmbIrBuscar" title="Buscar" value="Buscar" icon="ui-icon-search"
+									process="@this"
+									action="#{controladorProyecto.abrirDialogoBuscarProyectos()}"
+									update=":frnBuscarProyectos"/> 
+									                      
+				</p:toolbarGroup>
+				<br />
+			</p:toolbar>
+			<br />
+			<p:panel header="INGRESAR PROYECTOS" style="max-width:300px;min-height:100px;">
+				<h:panelGrid id="pnlDatosProyecto" columns="2" >
+								<h:outputText value="PROGRAMA: " />
+								<p:selectOneMenu value="#{controladorProyecto.generalDM.idPrograma}" id="oneMenuPrograma">
+									<f:selectItem itemLabel="-- Seleccione el Programa --" itemValue="0"/>
+									<f:selectItems value="#{controladorProyecto.generalDM.lstProgramas}" var="varPrograma"
+										itemValue="#{varPrograma.programaid}" itemLabel="#{varPrograma.descripcion}"/>
+									<p:ajax event="change"
+										process="@this, oneMenuPrograma" 
+										listener="#{controladorProyecto.generalDM.cargarListaProyectos()}"
+										update="pnlListaProyecto"/>
+								</p:selectOneMenu>
+						     <h:outputText value="PROYECTO: " />
+							 <p:inputText value="#{generalDataManager.proyecto.descripcion}" onkeypress="return validarNombres(event)"/>
+							 <h:outputText value="Presupuesto Establecido: " />
+							 <p:inputText value="#{generalDataManager.proyecto.presupuestoest}"/>
+							 <h:outputText value="Presupuesto Calculado: " />
+							 <p:inputText value="#{generalDataManager.proyecto.presupuestoest}"/>
+							 <h:outputText value="Presupuesto Ejecutado: " />
+							 <p:inputText value="#{generalDataManager.proyecto.presupuestoest}"/>
+							 <h:outputText value="Año de Ejecucion" />
+							 <p:inputText value="#{generalDataManager.proyecto.ano}"/>
+							 <h:outputText value="Tipo de Documento: " />
+							 <p:selectOneMenu value="#{controladorProyecto.idTipoDoc}" id="oneMenuTipoDoc">
+								<f:selectItem itemLabel="  -- Seleccione --" itemValue="0"/>
+								<f:selectItems value="#{controladorProyecto.lstTipoDoc}" var="varTipodoc"
+											   itemValue="#{varTipodoc.tipodocumentoid}" itemLabel="#{varTipodoc.nombre}"/>
+							 </p:selectOneMenu>
+							 <h:outputText value="Documento de Respaldo: " />
+							 <p:inputText value="#{generalDataManager.proyecto.docrespaldo}"/>
+							 <h:outputText value="Comentario: " />
+							 <p:inputTextarea value="#{generalDataManager.proyecto.comentario}"
+							 				  rows="1" cols="30" counter="counter" maxlength="100" 
+								              counterTemplate="{0} caracteres restantes." autoResize="false"/>
+							 <h:outputText value="" />
+				             <h:outputText value="" />
+				             <h:outputText value="" />
+				             <h:outputText id="counter" />
+							 
+				 </h:panelGrid>
+			 </p:panel>
+			 <br />
+			 
+			 <h:panelGrid id="pnlListaProyecto">
+				 <p:dataTable id="dtablaProyecto" value="#{controladorProyecto.generalDM.lstProyectos}" var="varProyecto"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE PROYECTOS" />
+				 </f:facet>		  
+					  <p:column filterBy="#{varProyecto.descripcion}" sortBy="#{varProyecto.descripcion}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="Proyecto" />
+						 	</f:facet>
+						 	<h:outputText value="#{varProyecto.descripcion}" />
+					  </p:column>
+					  <p:column headerText="Programa">
+						  	<h:outputText value="#{varProyecto.programa.descripcion}" />
+					  </p:column>
+					  <p:column headerText="Presupuesto">
+						  	<h:outputText value="#{varProyecto.presupuestoest}" />
+					  </p:column>
+					  <p:column headerText="Documento">
+						  	<h:outputText value="#{varProyecto.docrespaldo}" />
+					  </p:column>
+					  <p:column headerText="Año">
+						  	<h:outputText value="#{varProyecto.ano}" />
+					  </p:column>
+					  <p:column headerText="Comentario">
+					  		<h:outputText value="#{varProyecto.comentario}" />
+					  
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Proyecto" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorProyecto.recuperarProyecto}"
+								update=":frmProyecto:pnlDatosProyecto :frmProyecto:toolbarProyecto">
+								<f:setPropertyActionListener target="#{generalDataManager.proyecto}" value="#{varProyecto}"/>
+								<f:setPropertyActionListener target="#{controladorProyecto.idTipoDoc}" value="#{varProyecto.tipodocumentoid}"/>
+							</p:commandButton>
+						</p:column>
+						<p:column headerText="ir Convenios">
+					  		<p:commandButton id="cmbVerConvenios" title="Ver Convenios" icon="ui-icon-check"
+								process="@this"
+								action="#{controladorProyecto.irConvenios()}">
+								<f:setPropertyActionListener target="#{generalDataManager.proyecto}" value="#{varProyecto}"/>
+								</p:commandButton>
+						</p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		<p:dialog widgetVar="dlgEliminarProyecyo" header="! Eliminar Proyecto" showEffect="explode">
+		<h:form id="fmrEliminarProyecto">
+			<h:outputText value="¿Está seguro que desea eliminar este Proyecto?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorProyecto.eliminarProyecto}" 
+				oncomplete="dlgEliminarProyecto.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarProyecto.hide()"/>
+		</h:form>
+	</p:dialog>	
+	<p:dialog widgetVar="dlgbuscarProyecto" position="center" header="Lista Total de Proyectos">
+		<h:form id="frnBuscarProyectos">
+			<p:toolbar>
+
+				<p:toolbarGroup align="right">
+					   	  <p:inputText id="txtNombreProyecto" value="#{controladorProyecto.nombreProyectoABuscar}"/>
+				          <p:commandButton value="Buscar" 
+				                           action="#{controladorProyecto.buscarProyecto}"
+				                           process="@this,txtNombreProyecto"
+				                      	   update="pnlBListaProyecto"/>
+				          <p:separator/>
+				          <p:commandButton title="Recuperar Lista " icon="ui-icon-folder-open"
+				          				   process="@this"
+				          				   action="#{controladorProyecto.generalDM.cargarListaProyectos()}"
+				          				   />
+				          <p:commandButton id="cmbCancelar" title="Cancelar Cambios" value="Cancelar" icon="ui-icon-cancel"
+					     				  process="@this"
+					                      action="#{controladorProyecto.recuperarProyecto}"
+					                      />				   
+				</p:toolbarGroup>
+			</p:toolbar>
+			 <h:panelGrid id="pnlBListaProyecto">
+				 <p:dataTable id="dtablaProyecto" value="#{controladorProyecto.generalDM.lstProyectos}" var="varProyecto"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE PROYECTOS" />
+				 </f:facet>		  
+					  <p:column filterBy="#{varProyecto.descripcion}" sortBy="#{varProyecto.descripcion}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="Proyecto" />
+						 	</f:facet>
+						 	<h:outputText value="#{varProyecto.descripcion}" />
+					  </p:column>
+					  <p:column headerText="Programa">
+						  	<h:outputText value="#{varProyecto.programa.descripcion}" />
+					  </p:column>
+					  <p:column headerText="Presupuesto">
+						  	<h:outputText value="#{varProyecto.presupuestoest}" />
+					  </p:column>
+					  <p:column headerText="Documento">
+						  	<h:outputText value="#{varProyecto.docrespaldo}" />
+					  </p:column>
+					  <p:column headerText="Año">
+						  	<h:outputText value="#{varProyecto.ano}" />
+					  </p:column>
+					  <p:column headerText="Comentario">
+					  		<h:outputText value="#{varProyecto.comentario}" />
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Proyecto" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorProyecto.habilitarEditarProyeto()}"
+								update=":frmProyecto:pnlDatosProyecto :frmProyecto:toolbarProyecto  "
+								oncomplete="dlgbuscarProyecto.hide()">
+								<f:setPropertyActionListener target="#{generalDataManager.proyecto}" value="#{varProyecto}"/>
+								<f:setPropertyActionListener target="#{generalDataManager.idPrograma}" value="#{varProyecto.programa.programaid}"/>
+								<f:setPropertyActionListener target="#{controladorProyecto.idTipoDoc}" value="#{varProyecto.tipodocumentoid}"/>
+							</p:commandButton>
+						</p:column>						
+				 </p:dataTable>
+			</h:panelGrid>
+			 
+		</h:form>
+	</p:dialog>
+	
+</ui:define>
+</ui:composition> 
+</html>

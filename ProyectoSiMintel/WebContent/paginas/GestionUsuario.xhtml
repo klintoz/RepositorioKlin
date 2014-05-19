@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/templates/templateLayoutMenuGeneral.xhtml">
+	<ui:define name="tituloPagina">Gestión de Usuario</ui:define>
+	<ui:define name="contenido">
+		<h:form id="frmUsuario">
+			<p:panel id="pnlMenus">
+				<f:facet name="header">
+					<h:outputText value="Gestión de Usuarios.     " />
+					<p:commandButton value="Nuevo usuario"
+						action="#{controladorUsuario.abrirAgregar()}" update=":frmDlgAgre" />
+					<p:commandButton value="Asignar Perfil"
+						action="#{controladorUsuario.gestionPerfiles()}" />
+				</f:facet>
+				<p:dataTable value="#{controladorUsuario.usuarios}" var="varUsuario"
+					sortBy="#{varUsuario.usuario}">
+					<p:column headerText="Usuario" filterBy="#{varUsuario.usuario}">
+						<h:outputText value="#{varUsuario.usuario}" />
+					</p:column>
+					<p:column headerText="Clave">
+						<h:outputText value="#{varUsuario.contrasenia}" />
+					</p:column>
+					<p:column headerText="Nombre">
+						<h:outputText value="#{varUsuario.persona.nombre}" />
+					</p:column>
+					<p:column headerText="Apellido">
+						<h:outputText value="#{varUsuario.persona.apellido}" />
+					</p:column>
+					<p:column headerText="Cedula">
+						<h:outputText value="#{varUsuario.persona.cedula}" />
+					</p:column>
+					<p:column headerText="Acciones">
+						<p:commandButton action="#{controladorUsuario.abrirEditar()}"
+							style="background:none; border:0px solid;" icon="ui-icon-pencil"
+							update=":iddlgEditUsuario">
+							<f:setPropertyActionListener target="#{controladorUsuario.usuario}"
+								value="#{varUsuario}" />
+						</p:commandButton>
+						<p:commandButton oncomplete="dlgElimUsuario.show()"
+							style="background:none; border:0px solid;"
+							icon="ui-icon-trash"
+							update=":frmDlgElim:pnlElim, :frmUsuario:pnlMenus">
+							<f:setPropertyActionListener target="#{controladorUsuario.usuario}"
+								value="#{varUsuario}" />
+						</p:commandButton>
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+		
+		<p:dialog header="Editar Usuario" widgetVar="dlgEditUsuario"
+			id="iddlgEditUsuario" closable="false" >
+			<h:form id="frmDlgEdit">
+				<p:panel style="border: 0px;" id="pnlEdit">
+					<h:panelGrid columns="2">
+						<f:facet name="header">
+							<h:outputText value="DATOS USUARIO" />
+						</f:facet>
+							<h:outputText value="** Usuario: " />
+							<p:inputText value="#{controladorUsuario.usuario.usuario}" required="true"
+								requiredMessage="Debe ingresar el nombre de usuario."/>
+							<h:outputText value="* Contraseña: " />
+							<p:inputText value="#{controladorUsuario.usuario.contrasenia}" required="true"
+								requiredMessage="Debe ingresar la contraseña."/>
+							<h:outputText value="Fecha Caducidad: " />
+							<p:calendar value="#{controladorUsuario.usuario.fechaCaducidadContrasenia}"/>
+					</h:panelGrid>
+					<br />
+					<p:separator/>
+					<br />
+					<h:panelGrid columns="4">
+						<f:facet name="header">
+							<h:outputText value="DATOS PERSONALES" />
+						</f:facet>
+							<h:outputText value="* Nombre: " />
+							<p:inputText value="#{controladorUsuario.persona.nombre}" required="true"
+								requiredMessage="Nombre es obligatorio."/>
+							<h:outputText value="* Apellido: " />
+							<p:inputText value="#{controladorUsuario.persona.apellido}" required="true"
+								requiredMessage="Apellido es obligatorio."/>
+							<h:outputText value="* Cédula: " />
+							<p:inputText value="#{controladorUsuario.persona.cedula}" required="true"
+								requiredMessage="Cédula es obligatorio."/>
+							<h:outputText value="Fecha Nacimiento: " />
+							<p:calendar value="#{controladorUsuario.persona.fechaNacimiento}"/>
+							<h:outputText value="* Mail (Personal): " />
+							<p:inputText value="#{controladorUsuario.persona.mailPersonal}" size="40"/>
+							<h:outputText value="* Mail (Institucional): " />
+							<p:inputText value="#{controladorUsuario.persona.mailInstitucional}" size="40"/>
+							<h:outputText value="Dirección: " />
+							<p:inputTextarea value="#{controladorUsuario.persona.direccion}" rows="2" cols="35" counter="counter" maxlength="100" 
+										 counterTemplate="{0} caracteres restantes." autoResize="false"/> 
+							<h:outputText id="counter"/>
+					</h:panelGrid>
+					<br />
+					<p:commandButton value="Actualizar"
+						action="#{controladorUsuario.editar()}"
+						update=":frmUsuario:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+
+					<p:commandButton value="Cancelar"
+						action="#{controladorUsuario.cancelarEditar()}" process="@this" oncomplete="dlgEditUsuario.hide()"
+						update=":frmUsuario:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+
+				</p:panel>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="¿Está Seguro que desea eliminar el usuario?"
+			widgetVar="dlgElimUsuario" id="iddlgElimUsuario"
+			closable="false" resizable="false"
+			message="Recuerde que el usuario no se puede eliminar si tiene registros asociados.">
+			<h:form id="frmDlgElim">
+				<center>
+					<p:panel style="border: 0px;" id="pnlElim">
+						<p:column>
+							<center>
+								<h:outputText value="Usuario: " />
+								<h:outputText value="#{controladorUsuario.usuario.usuario}" />
+							</center>
+						</p:column>
+					</p:panel>
+				</center>
+				<p:commandButton id="confirm" value="Si"
+					action="#{controladorUsuario.eliminar()}"
+					update=":frmUsuario:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+				<p:commandButton id="decline" value="No"
+					action="#{controladorUsuario.cancelarEliminar()}"
+					update=":frmUsuario:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Agregar Usuario" widgetVar="dlgAgreUsuario"
+			id="iddlgAgreUsuario" closable="false" resizable="false">
+			<h:form id="frmDlgAgre">
+				<p:panel style="border: 0px;" id="pnlAgre">
+					<h:panelGrid columns="2">
+						<f:facet name="header">
+							<h:outputText value="DATOS USUARIO" />
+						</f:facet>
+							<h:outputText value="** Usuario: " />
+							<p:inputText value="#{controladorUsuario.usuario.usuario}" required="true"
+								requiredMessage="Debe ingresar el nombre de usuario."/>
+							<h:outputText value="* Contraseña: " />
+							<p:inputText value="#{controladorUsuario.usuario.contrasenia}" required="true"
+								requiredMessage="Debe ingresar la contraseña."/>
+							<h:outputText value="Fecha Caducidad: " />
+							<p:calendar value="#{controladorUsuario.usuario.fechaCaducidadContrasenia}"/>
+					</h:panelGrid>
+					<br />
+					<p:separator/>
+					<br />
+					<h:panelGrid columns="4">
+						<f:facet name="header">
+							<h:outputText value="DATOS PERSONALES" />
+						</f:facet>
+							<h:outputText value="* Nombre: " />
+							<p:inputText value="#{controladorUsuario.persona.nombre}" required="true"
+								requiredMessage="Nombre es obligatorio." size="40"/>
+							<h:outputText value="* Apellido: " />
+							<p:inputText value="#{controladorUsuario.persona.apellido}" required="true"
+								requiredMessage="Apellido es obligatorio." size="40"/>
+							<h:outputText value="* Cédula: " />
+							<p:inputText value="#{controladorUsuario.persona.cedula}" required="true"
+								requiredMessage="Cédula es obligatorio."/>
+							<h:outputText value="Fecha Nacimiento: " />
+							<p:calendar value="#{controladorUsuario.persona.fechaNacimiento}"/>
+							<h:outputText value="* Mail (Personal): " />
+							<p:inputText value="#{controladorUsuario.persona.mailPersonal}" size="40"/>
+							<h:outputText value="* Mail (Institucional): " />
+							<p:inputText value="#{controladorUsuario.persona.mailInstitucional}" size="40"/>
+							<h:outputText value="Dirección: " />
+							<p:inputTextarea value="#{controladorUsuario.persona.direccion}" rows="2" cols="35" counter="counter" maxlength="100" 
+										 counterTemplate="{0} caracteres restantes." autoResize="false"/> 
+							<h:outputText id="counter"/>
+					</h:panelGrid>
+					<br />
+					<p:commandButton value="Guardar"
+						action="#{controladorUsuario.agregar()}"
+						update=":frmUsuario:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+
+					<p:commandButton id="btnCancelar" value="Cancelar"
+						action="#{controladorUsuario.cancelarAgregar()}"
+						process=":frmDlgAgre:btnCancelar"
+						update=":frmUsuario:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+				</p:panel>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+</ui:composition>
+</html>

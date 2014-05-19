@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+       xmlns:p="http://primefaces.org/ui">  
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmParroquia">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarParroquia" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nueva Parroquia" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorParroquia.nuevoParroquia}"
+			             				  update="toolbarParroquia, pnlDatosParroquia"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Parroquia" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlDatosParroquia" 
+						 				  action="#{controladorParroquia.insertarParroquia}" 
+						 				  update="frmParroquia"
+						 				  disabled="#{controladorParroquia.botonInsertarParroquia}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Parroquia"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlDatosParroquia"
+						 				  action="#{controladorParroquia.actualizarParroquia}" 
+						 				  disabled="#{controladorParroquia.botonActualizarParroquia}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Parroquia" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorParroquia.abrirDialogoEliminarParroquia}"
+					                      disabled="#{controladorParroquia.botonEliminarParroquia}"/> 
+					                      
+					      <p:commandButton id="cmbCancelar" title="Cancelar Cambios" value="Cancelar" icon="ui-icon-cancel"
+					     				  process="@this"
+					                      action="#{controladorParroquia.recuperarParroquia}"
+					                      update="pnlDatosParroquia"/> 
+					                                        
+					                      
+				</p:toolbarGroup>
+				
+				<p:toolbarGroup align="right">
+					   	  <p:inputText id="txtNombreParroquia" value="#{controladorParroquia.nombreParroquiaABuscar}"/>
+				          <p:commandButton value="Buscar" 
+				                          action="#{controladorParroquia.buscarParroquia}"
+				                          process="@this,txtNombreParroquia"
+				                          update="pnlListaParroquia, txtNombreParroquia"/>
+				          <p:commandButton  title="Recuperar Lista " icon="ui-icon-folder-open"
+				          					process="@this"
+				          					action="#{controladorParroquia.cargarListaParroquia}"
+				          					update="pnlListaParroquia"/>
+				</p:toolbarGroup>
+				<br />
+			</p:toolbar>
+			<br />
+			<p:panel header="INGRESAR PARROQUIA" style="max-width:250px;min-height:100px;">
+				<h:panelGrid id="pnlDatosParroquia" columns="2" >
+						<h:outputText value="CANTON: " />
+						<p:selectOneMenu value="#{controladorParroquia.idCanton}" id="oneMenuCanton">
+							<f:selectItem itemLabel="-- Seleccione el Cantón--" itemValue="0"/>
+							<f:selectItems value="#{controladorParroquia.lstCanton}" var="varCanton" 
+								itemValue="#{varCanton.cantonid}" itemLabel="#{varCanton.nombre}"/>
+							<p:ajax event="change"
+									process="@this, oneMenuCanton"
+									listener="#{controladorParroquia.cargarListaParroquia()}"
+									update="pnlDatosParroquia"/>	
+						
+						</p:selectOneMenu>
+							<h:outputText value="DPA: " />
+							 <p:inputText value="#{controladorParroquia.parroquia.dpa}"/>
+						     <h:outputText value="PARROQUIA: " />
+							 <p:inputText value="#{controladorParroquia.parroquia.nombre}" onkeypress="return validarNombres(event)"/>
+							 
+				 </h:panelGrid>
+			 </p:panel>
+			 <br />
+			 
+			 <h:panelGrid id="pnlListaParroquia">
+				 <p:dataTable id="dtablaParroquia" value="#{controladorParroquia.lstParroquias}" var="varParroquia"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE PARROQUIA" />
+				 </f:facet>	
+					  <p:column headerText="DPA">
+						  	<h:outputText value="#{varParroquia.dpa}" />
+					  </p:column>	  
+					  <p:column filterBy="#{varParroquia.nombre}" sortBy="#{varParroquia.nombre}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="PARROQUIA" />
+						 	</f:facet>
+						 	<h:outputText value="#{varParroquia.nombre}" />
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Parroquia" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorParroquia.recuperarParroquia}"
+								update=":frmParroquia:pnlDatosParroquia :frmParroquia:toolbarParroquia">
+								<f:setPropertyActionListener target="#{controladorParroquia.parroquia}" value="#{varParroquia}"/>
+							</p:commandButton>
+						</p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:dialog widgetVar="dlgEliminarParroquia" header="! Eliminar Parroquia" showEffect="explode">
+		<h:form id="fmrEliminarParroquia">
+			<h:outputText value="¿Está seguro que desea eliminar este Parroquia?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorParroquia.eliminarParroquia()}" 
+				oncomplete="dlgEliminarParroquia.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarParroquia.hide()"/>
+		</h:form>
+	</p:dialog>	
+</ui:define>
+</ui:composition>
+</html>

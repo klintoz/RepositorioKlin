@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="JPA_SiMintel">
+	<jta-data-source>java:/SiMintelDS</jta-data-source>
+		<class>ec.gob.simintel.entidades.Area</class>
+		<class>ec.gob.simintel.entidades.Atributo</class>
+		<class>ec.gob.simintel.entidades.Atributossetatrib</class>
+		<class>ec.gob.simintel.entidades.Auditoriatabla</class>
+		<class>ec.gob.simintel.entidades.Beneficiario</class>
+		<class>ec.gob.simintel.entidades.Canton</class>
+		<class>ec.gob.simintel.entidades.Circuito</class>
+		<class>ec.gob.simintel.entidades.Conftransest</class>
+		<class>ec.gob.simintel.entidades.Contacto</class>
+		<class>ec.gob.simintel.entidades.Convenio</class>
+		<class>ec.gob.simintel.entidades.Datoscontacto</class>
+		<class>ec.gob.simintel.entidades.Detalleauditoria</class>
+		<class>ec.gob.simintel.entidades.Detallebenef</class>
+		<class>ec.gob.simintel.entidades.Detalleejecinv</class>
+		<class>ec.gob.simintel.entidades.Detalleinstitucion</class>
+		<class>ec.gob.simintel.entidades.Detallemon</class>
+		<class>ec.gob.simintel.entidades.Detalleplaninv</class>
+		<class>ec.gob.simintel.entidades.Distrito</class>
+		<class>ec.gob.simintel.entidades.Ejecinversion</class>
+		<class>ec.gob.simintel.entidades.Elemseriado</class>
+		<class>ec.gob.simintel.entidades.Elemsernovedad</class>
+		<class>ec.gob.simintel.entidades.Estado</class>
+		<class>ec.gob.simintel.entidades.Grupodato</class>
+		<class>ec.gob.simintel.entidades.Instbeneficiada</class>
+		<class>ec.gob.simintel.entidades.Institucion</class>
+		<class>ec.gob.simintel.entidades.Inversion</class>
+		<class>ec.gob.simintel.entidades.Listavaloresatrib</class>
+		<class>ec.gob.simintel.entidades.Mediocontacto</class>
+		<class>ec.gob.simintel.entidades.Monitoreo</class>
+		<class>ec.gob.simintel.entidades.Pagina</class>
+		<class>ec.gob.simintel.entidades.PaginaRol</class>
+		<class>ec.gob.simintel.entidades.Pai</class>
+		<class>ec.gob.simintel.entidades.Parroquia</class>
+		<class>ec.gob.simintel.entidades.Patrocinador</class>
+		<class>ec.gob.simintel.entidades.Patrocinio</class>
+		<class>ec.gob.simintel.entidades.Perfil</class>
+		<class>ec.gob.simintel.entidades.Persona</class>
+		<class>ec.gob.simintel.entidades.Personalarea</class>
+		<class>ec.gob.simintel.entidades.Plan</class>
+		<class>ec.gob.simintel.entidades.Planinversion</class>
+		<class>ec.gob.simintel.entidades.Plazo</class>
+		<class>ec.gob.simintel.entidades.Programa</class>
+		<class>ec.gob.simintel.entidades.Proveedor</class>
+		<class>ec.gob.simintel.entidades.Provincia</class>
+		<class>ec.gob.simintel.entidades.Proyecto</class>
+		<class>ec.gob.simintel.entidades.Region</class>
+		<class>ec.gob.simintel.entidades.Relacionproyecto</class>
+		<class>ec.gob.simintel.entidades.Rol</class>
+		<class>ec.gob.simintel.entidades.Setatributo</class>
+		<class>ec.gob.simintel.entidades.Tipobeneficiario</class>
+		<class>ec.gob.simintel.entidades.Tipodocumento</class>
+		<class>ec.gob.simintel.entidades.Tipoinstitucion</class>
+		<class>ec.gob.simintel.entidades.Tipoinversion</class>
+		<class>ec.gob.simintel.entidades.Tipomedio</class>
+		<class>ec.gob.simintel.entidades.Tiposostenimiento</class>
+		<class>ec.gob.simintel.entidades.Transestconvenio</class>
+		<class>ec.gob.simintel.entidades.Usuario</class>
+		<class>ec.gob.simintel.entidades.Zonasemplade</class>
+		<properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.format_sql" value="true" />
+		</properties>
+	</persistence-unit>
+</persistence>

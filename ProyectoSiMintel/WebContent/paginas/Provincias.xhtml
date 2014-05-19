@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+	<ui:composition template="/templates/clearTemplate.xhtml">
+	<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmProvincia">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarProvincia" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nueva Provincia" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorProvincia.nuevaProvincia}"
+			             				  update="toolbarProvincia, pnlDatosProvincia"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Provincia" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlDatosProvincia" 
+						 				  action="#{controladorProvincia.insertarProvincia}" 
+						 				  update="frmProvincia"
+						 				  disabled="#{controladorProvincia.botonInsertarProvincia}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Provincia"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlDatosProvincia"
+						 				  action="#{controladorProvincia.actualizarProvincia}" 
+						 				  disabled="#{controladorProvincia.botonActualizarProvincia}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Provincia" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorProvincia.abrirDialogoEliminarProvincia}"
+					                      disabled="#{controladorProvincia.botonEliminarProvincia}"/> 
+					      <p:commandButton id="cmbCancelar" title="Cancelar Cambios" value="Cancelar" icon="ui-icon-cancel"
+					     				  process="@this"
+					                      action="#{controladorProvincia.recuperarProvincia}"
+					                      update="pnlDatosProvincia"/> 
+					                                        
+					                      
+				</p:toolbarGroup>
+				
+				<p:toolbarGroup align="right">
+					   	  <p:inputText id="txtNombreProvincia" value="#{controladorProvincia.nombreProvinciaABuscar}"/>
+				          <p:commandButton value="Buscar" 
+				                          action="#{controladorProvincia.buscarProvincia()}"
+				                          process="@this,txtNombreProvincia"
+				                          update="pnlListaProvincia, txtNombreProvincia"/>
+				          <p:commandButton  title="Recuperar Lista " icon="ui-icon-folder-open"
+				          					process="@this"
+				          					action="#{controladorProvincia.cargarListaProvincias}"
+				          					update="pnlListaProvincia"/>
+				</p:toolbarGroup>
+				<br />
+			</p:toolbar>
+			<br />
+			
+			<p:panel header="INGRESAR PROVINCIA" style="max-width:250px;min-height:100px;">
+				<h:panelGrid id="pnlDatosProvincia" columns="2" >
+					<h:outputText value="PAIS: " />
+					<p:selectOneMenu value="#{controladorProvincia.idPais}" id="oneMenuPais">
+						<f:selectItem itemLabel="-- Seleccione el Pais --" itemValue="0"/>
+						<f:selectItems value="#{controladorProvincia.lstPaises}" var="varPais"
+							itemValue="#{varPais.paisid}" itemLabel="#{varPais.nombre}"/>
+						<p:ajax event="change"
+							process="@this, oneMenuPais" 
+							listener="#{controladorProvincia.cargarListaProvincias()}"
+							update="pnlListaProvincia"/>
+					</p:selectOneMenu>
+					<h:outputText value="DPA: " />
+					<p:inputText value="#{controladorProvincia.provincia.dpa}"/>
+					<h:outputText value="PROVINCIA: " />
+					<p:inputText value="#{controladorProvincia.provincia.nombre}" onkeypress="return validarNombres(event)"/>
+				 </h:panelGrid>
+			 </p:panel>
+			 <br />
+			 
+			 <h:panelGrid id="pnlListaProvincia">
+				 <p:dataTable id="dtablaProvincia" value="#{controladorProvincia.lstProvincias}" var="varProvincia"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE PROVINCIAS" />
+				 </f:facet>	
+				 	  <p:column headerText="ID">
+						  	<h:outputText value="#{varProvincia.provinciaid}" />
+					  </p:column>	  
+					  <p:column filterBy="#{varProvincia.nombre}" sortBy="#{varProvincia.nombre}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="PROVINCIA" />
+						 	</f:facet>
+						 	
+						 	<h:outputText value="#{varProvincia.nombre}" />
+					  </p:column>
+					   <p:column headerText="PDA">
+						  	<h:outputText value="#{varProvincia.dpa}" />
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Provincia" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorProvincia.habilitarEditarProvincia()}"
+								update=":frmProvincia:pnlDatosProvincia :frmProvincia:toolbarProvincia">
+								<f:setPropertyActionListener target="#{controladorProvincia.provincia}" value="#{varProvincia}"/>
+							</p:commandButton>
+						</p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:dialog widgetVar="dlgEliminarProvincia" header="! Eliminar Provincia" showEffect="explode">
+		<h:form id="fmrEliminarProvincia">
+			<h:outputText value="¿Está seguro que desea eliminar esta Provincia?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorProvincia.eliminarProvincia}" 
+				oncomplete="dlgEliminarProvincia.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarProvincia.hide()"/>
+		</h:form>
+	</p:dialog>	
+</ui:define>
+	</ui:composition>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<h:head>
+	
+	<title><ui:insert name="tituloPagina">TITULO FORMULARIO</ui:insert>
+	</title>
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/css/base.css" />
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+</h:head>
+<h:body>
+	<p:growl autoUpdate="true" />
+	<p:layout fullPage="true">
+	
+		<p:layoutUnit position="north" size="120" header="Top"
+			resizable="true" collapsible="true">
+			<h:form id="frmHotkeys">
+				<p:hotkey bind="f1" actionListener="#{controladorMenu.abrirMenu}" />
+		
+				<p:hotkey bind="f2" actionListener="#{controladorMenu.cerrarMenu}" />
+			</h:form>
+		
+			<p:notificationBar position="top" effect="fade" widgetVar="menu"
+				id="menuOverlay" effectSpeed="fast"
+				autoDisplay="#{controladorMenu.menuSiempreAbierto}">
+				<h:form id="frmDock">
+					<p:dock position="top" id="menu_top" proximity="30" halign="center"
+						itemWidth="40" maxWidth="30" rendered="true">
+						<c:forEach var="var" items="#{controladorMenu.menus}">
+							<p:menuitem value="#{var.nombre}" icon="#{var.icon}"
+								action="#{controladorMenu.cambiarSubMenu()}"
+								update=":frmStk:stkBot">
+								<f:setPropertyActionListener target="#{menuDataManager.menuClick}"
+									value="#{var}" />
+							</p:menuitem>
+						</c:forEach>
+		
+						<p:menuitem value="#{controladorMenu.menuLogout.nombre}"
+							icon="#{controladorMenu.menuLogout.icon}"
+							action="#{usuarioDataManager.logout()}" />
+					</p:dock>
+					<div id="menuFixed">
+						<p:commandButton title="Cambiar a Menu Abierto"
+							actionListener="#{controladorMenu.mantenerMenuAbierto()}"
+							icon="ui-icon-folder-collapsed" style="background:none; border:0px solid;"
+							rendered="#{!controladorMenu.menuSiempreAbierto}" />
+						<p:commandButton title="Cambiar a Menu Cerrado"
+							actionListener="#{controladorMenu.mantenerMenuAbierto()}"
+							icon="ui-icon-folder-open"
+							style="background:none; border:0px solid;"
+							rendered="#{controladorMenu.menuSiempreAbierto}" />
+						<p:commandButton title="Cerrar Menu"
+							actionListener="#{controladorMenu.cerrarMenu}"
+							icon="ui-icon-close" style="background:none; border:0px solid;" />
+					</div>
+				</h:form>
+			</p:notificationBar>
+			<h:form id="frmIconMenu">
+				<div id="menuIconFixed">
+					<p:commandButton title="Abrir Menu Principal"
+						actionListener="#{controladorMenu.abrirMenu}"
+						icon="ui-icon-home" style="background:none; border:0px solid;" />
+				</div>
+			</h:form>
+		</p:layoutUnit>
+		
+		
+		<p:layoutUnit id="west" position="west" size="280">				
+			<h:form id="frmStk">
+				<p:menu id="stkBot" rendered="#{controladorMenu.pintarSubmenus()}"
+					style="color:White;font-size:medium;font-family:Cambria;">
+					<p:submenu label="#{menuDataManager.menuClick.nombre}">
+						<c:forEach var="var" items="#{controladorMenu.subMenus}">
+							<p:menuitem value="#{var.nombre}" url="#{var.url}" />
+						</c:forEach>
+					</p:submenu>
+				</p:menu>
+			</h:form>
+		</p:layoutUnit>
+
+
+		<p:layoutUnit position="east" size="220" header="Right"
+			resizable="true" closable="true" collapsible="true" effect="drop">
+			<p:calendar mode="inline" navigator="true"/>
+		</p:layoutUnit>
+
+
+		<p:layoutUnit id="content" position="center">
+			<table style="border: 0px solid #CAD6E0" align="center"
+				cellpadding="0" cellspacing="0" border="0" width="680">
+				<tr>
+					<td height="0" width="100%"></td>
+				</tr>
+				<tr>
+					<td width="100%" colspan="2">
+						<table width="100%" style="height: 250px" align="left"
+							cellpadding="0" cellspacing="0" border="0">
+							<tr>
+								<td align="center" width="100%" valign="middle"
+									class="formulario"
+									style="font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px;">
+									<ui:insert name="contenido">
+
+									</ui:insert>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</p:layoutUnit>
+		
+		<p:dialog widgetVar="dlgCargando" resizable="false" draggable="false"
+			closable="false" modal="true" id="dlgIdCargando"
+			header="Procesando petición.">
+			<p:graphicImage value="../imagenes/ajaxloadingbar.gif" />
+		</p:dialog>
+		
+	</p:layout>
+</h:body>
+
+</html>

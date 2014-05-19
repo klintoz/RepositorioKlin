@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+       
+       
+<ui:composition template="/templates/clearTemplate.xhtml">
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmConvenio">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarConvenio" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nuevo Convenio" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorConvenios.nuevoConvenio}"
+			             				  update="toolbarConvenio, pnlDatosConvenio"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Convenio" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlDatosConvenio" 
+						 				  action="#{controladorConvenios.insertarConvenios}" 
+						 				  update="frmConvenio"
+						 				  disabled="#{controladorConvenios.botonInsertarConvenios}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Convenio"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlDatosConvenio"
+						 				  action="#{controladorConvenios.actualizarConvenio}" 
+						 				  update="frmConvenio ,pnlListaConvenio"
+						 				  disabled="#{controladorConvenios.botonActualizarConvenios}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Convenio" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorConvenios.abrirDialogoEliminarConvenio}"
+					                      disabled="#{controladorConvenios.botonEliminarConvenios}"/>  
+					                                        
+					                 
+				</p:toolbarGroup>
+				
+				<p:toolbarGroup align="right">
+					   	  <p:inputText id="txtNombreConvenio" value="#{controladorConvenios.nombreConvenioABuscar}"/>
+				          <p:commandButton value="Buscar" 
+				                          action="#{controladorConvenios.buscarConvenio}"
+				                          process="@this,txtNombreConvenio"
+				                          update="pnlListaConvenio, txtNombreConvenio"/>
+				</p:toolbarGroup>
+				<br />
+			</p:toolbar>
+			<br />
+			<p:panel  header="Escoja el Proyecto al cuál Pertenece el Convenio" style="max-width:350px;min-height:100px;">
+			<h:outputText value="" /> 
+			<h:outputText value="PROYECTO: " />
+			<h:outputText value="" />
+							<p:selectOneMenu value="#{generalDataManager.idProyecto}" id="oneMenuProyecto">
+								<f:selectItem itemLabel=" -- Seleccione -- " itemValue="0"/>
+								<f:selectItems value="#{controladorConvenios.lstProyectos}" var="varProyectos"
+									itemValue="#{varProyectos.proyectoid}" itemLabel="#{varProyectos.descripcion}"/>
+								<p:ajax event="change"
+										process="@this,oneMenuProyecto"
+										listener="#{controladorConvenios.cargarListaConvenios()}"
+										update="pnlListaConvenio"/>	
+							</p:selectOneMenu>
+			</p:panel>
+			<p:separator/>
+			
+			<p:panel header="INGRESAR CONVENIOS" style="max-width:400px;min-height:100px;">
+				<h:panelGrid id="pnlDatosConvenio" columns="2" >
+				
+				<h:outputText value="CONVENIO: " />
+				<p:inputText value="#{generalDataManager.convenio.descripcion}"/>
+				<h:outputText value="Proveedor: " />
+							<p:selectOneMenu value="#{controladorConvenios.idProveedor}" id="oneMenuProveedor">
+								<f:selectItem itemLabel="-- Seleccione --" itemValue="0"/>
+								<f:selectItems value="#{controladorConvenios.lstProveedores}" var="varProveedor"
+									itemValue="#{varProveedor.proveedorid}" itemLabel="#{varProveedor.nombre}"/>
+								<p:ajax event="change"
+										process="@this,oneMenuProveedor"
+										listener="#{controladorConvenios.cargarListaConvenios()}"
+										update="pnlListaConvenio"/>	
+							 </p:selectOneMenu>
+				<h:outputText value="Administrador: " />
+							 <p:selectOneMenu value="#{controladorConvenios.idPersona}" id="oneMenuPersona">
+								<f:selectItem itemLabel="-- Seleccione --" itemValue="0"/>
+								<f:selectItems value="#{controladorConvenios.lstPersona}"  var="varPersonas"
+									itemValue="#{varPersonas.id}" itemLabel="#{varPersonas.nombre} #{varPersonas.apellido}"/>
+								<p:ajax event="change"
+										process="@this,oneMenuPersona"
+										listener="#{controladorConvenios.cargarListaConvenios()}"
+										update="pnlListaConvenio"/>	
+							</p:selectOneMenu>
+				<h:outputText value="Tipo Documento: " />
+							<p:selectOneMenu value="#{controladorConvenios.idTipoDoc}" id="oneMenuTipoDoc">
+								<f:selectItem itemLabel="-- Seleccione --" itemValue="0"/>
+								<f:selectItems value="#{controladorConvenios.lstTiposDocs}" var="varTipoDoc"
+									itemValue="#{varTipoDoc.tipodocumentoid}" itemLabel="#{varTipoDoc.nombre}"/>
+								<p:ajax event="change"
+										process="@this,oneMenuTipoDoc"
+										listener="#{controladorConvenios.cargarListaConvenios()}"
+										update="pnlListaConvenio"/>	
+							</p:selectOneMenu>
+							 <h:outputText value="Documento Respaldo: " />
+							 <p:inputText value="#{generalDataManager.convenio.docrespaldo}"/>
+							 <h:outputText value="Fecha Suscripción: " />
+							 <p:calendar value="#{generalDataManager.convenio.fechasuscripcion}"/>
+							 <h:outputText value="Presupuesto Establecido: " />
+							 <p:inputText value="#{generalDataManager.convenio.presupuestoestablecido}"/>
+							 <h:outputText value="Presupuesto Calculado: " />
+							 <p:inputText value="#{generalDataManager.convenio.presupuestcalculado}"/>
+							 <h:outputText value="Presupuesto Ejecutado: " />
+							 <p:inputText value="#{generalDataManager.convenio.presupuestoejecutado}"/>
+							 <h:outputFormat value="Objetivo: " /> 
+							 <p:inputTextarea value="#{generalDataManager.convenio.objetivo}"
+							 				  rows="1" cols="30" counter="counter1" maxlength="100" 
+								              counterTemplate="{0} caracteres restantes." autoResize="false"/>
+							 <h:outputText value="" />
+				             <h:outputText value="" />
+				             <h:outputText value="" />
+							 <h:outputText id="counter1" />
+								 
+							 <h:outputText value="Estado: " />
+							 <p:selectOneMenu value="#{controladorConvenios.idEstado}" id="oneMenuEstado">
+								<f:selectItem itemLabel="-- Seleccione --" itemValue="0"/>
+								<f:selectItems value="#{controladorConvenios.lstEstados}" var="varEstados"
+									itemValue="#{varEstados.estadoid}" itemLabel="#{varEstados.nombre}"/>
+								<p:ajax event="change"
+										process="@this,oneMenuEstado"
+										listener="#{controladorConvenios.cargarListaConvenios()}"
+										update="pnlListaConvenio"/>	
+							</p:selectOneMenu>
+							 <h:outputFormat value="Comentario:" /> 
+							 <p:inputTextarea value="#{generalDataManager.convenio.comentario}"
+							 				  rows="1" cols="30" counter="counter" maxlength="100" 
+								              counterTemplate="{0} caracteres restantes." autoResize="false"/>
+							 <h:outputText value="" />
+				             <h:outputText value="" />
+				             <h:outputText value="" />
+				             <h:outputText id="counter" />
+				 </h:panelGrid>
+			 </p:panel> 
+			 <br />
+			 
+			 <h:panelGrid id="pnlListaConvenio">
+				 <p:dataTable id="dtablaConvenio" value="#{generalDataManager.lstConvenios}" var="varConvenio"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE CONVENIOS" />
+				 </f:facet>	
+				 	  <p:column filterBy="#{varConvenio.descripcion}" sortBy="#{varConvenio.descripcion}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="CONVENIO" />
+						 	</f:facet>
+						 	<h:outputText value="#{varConvenio.descripcion}" />
+					  </p:column>
+				 	  <p:column headerText="PROYECTO">
+						  	<h:outputText value="#{varConvenio.proyecto.descripcion}" />
+					  </p:column>
+				 	  
+					  <p:column headerText="FECHA">
+						  	<h:outputText value="#{varConvenio.fechasuscripcion}" />
+					  </p:column>
+					   <p:column headerText="OBJETIVO">
+						  	<h:outputText value="#{varConvenio.objetivo}" />
+					  </p:column>
+					  <p:column headerText="ADMINISTRADOR">
+						  	<h:outputText value="#{varConvenio.persona.nombre} #{varConvenio.persona.apellido}" />
+					  </p:column>
+					   <p:column headerText="PRESUPUESTO">
+						  	<h:outputText value="#{varConvenio.presupuestcalculado}" />
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Convenio" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorConvenios.recuperarConvenio}"
+								update=":frmConvenio:pnlDatosConvenio :frmConvenio:toolbarConvenio">
+								<f:setPropertyActionListener target="#{generalDataManager.convenio}" value="#{varConvenio}"/>
+								<f:setPropertyActionListener target="#{controladorConvenios.idProveedor}" value="#{varConvenio.proveedor.proveedorid}"/>
+								<f:setPropertyActionListener target="#{controladorConvenios.idPersona}" value="#{varConvenio.persona.id}"/>
+								<f:setPropertyActionListener target="#{controladorConvenios.idTipoDoc}" value="#{varConvenio.tipodocumentoid}"/>
+								<f:setPropertyActionListener target="#{controladorConvenios.idEstado}" value="#{varConvenio.estado.estadoid}"/>
+							</p:commandButton>
+						</p:column>
+						<p:column headerText="ir Inversión">
+					  		<p:commandButton id="cmbVerInversion" title="Ver Inversion" icon="ui-icon-check"
+								process="@this"
+								action="#{controladorConvenios.irInversion()}">
+								<f:setPropertyActionListener target="#{generalDataManager.convenio}" value="#{varConvenio}"/>
+								</p:commandButton>
+						</p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:dialog widgetVar="dlgEliminarConvenio" header="! Eliminar Convenio" showEffect="explode">
+		<h:form id="fmrEliminarConvenio">
+			<h:outputText value="¿Está seguro que desea eliminar este Convenio?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorConvenios.eliminarConvenio}" 
+				update=":frmConvenio"
+				oncomplete="dlgEliminarConvenio.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarConvenio.hide()"/>
+		</h:form>
+	</p:dialog>	
+</ui:define>
+</ui:composition>
+</html>

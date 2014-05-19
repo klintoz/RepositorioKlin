@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/templates/templateLayoutMenuGeneral.xhtml">
+	<ui:define name="tituloPagina">Gestión Páginas</ui:define>
+	<ui:define name="contenido">
+		<h:form id="frmMenu">
+			<p:panel id="pnlMenus">
+				<f:facet name="header">
+					<h:outputText value="Gestión de páginas.     " />
+					<p:commandButton value="Nueva página"
+						action="#{controladorPagina.abrirAgregar()}" update=":frmDlgAgre" />
+					<p:commandButton value="Ordenar ménus" onclick="dlgOrdMen.show()"></p:commandButton>
+					<p:commandButton value="Ordenar submenús"
+						onclick="dlgOrdSubM.show()"></p:commandButton>
+					<p:commandButton value="Asignar permisos"
+						action="#{controladorPagina.asignarPermisos()}"></p:commandButton>
+				</f:facet>
+				<p:dataTable value="#{controladorPagina.paginas}" var="varPag"
+					sortBy="#{varPag.nombre}" rows="8" paginator="true"
+					paginatorPosition="bottom"
+					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					emptyMessage="No existen registros.">
+					<p:column headerText="Nombre" filterBy="#{varPag.nombre}">
+						<h:outputText value="#{varPag.nombre}" />
+					</p:column>
+					<p:column headerText="URL" filterBy="#{varPag.url}">
+						<h:outputText value="#{varPag.url}" />
+					</p:column>
+					<p:column headerText="Orden">
+						<h:outputText value="#{varPag.orden}" />
+					</p:column>
+					<p:column headerText="Icon">
+						<h:outputText value="#{varPag.icon}" />
+						<br />
+						<p:graphicImage value="../#{varPag.icon}"
+							style="width: 24px; height: 24px;" />
+					</p:column>
+					<p:column headerText="Es menú?">
+						<p:selectBooleanCheckbox value="#{varPag.esMenu}" disabled="true" />
+					</p:column>
+					<p:column headerText="Padre" filterBy="#{varPag.pagina.nombre}">
+						<h:outputText value="#{varPag.pagina.nombre}" />
+					</p:column>
+					<p:column headerText="Acciones">
+						<p:commandButton action="#{controladorPagina.abrirEditar()}"
+							style="background:none; border:0px solid;" icon="ui-icon-pencil"
+							update=":iddlgEditarPag">
+							<f:setPropertyActionListener
+								target="#{controladorPagina.paginaSeleccionada}"
+								value="#{varPag}" />
+						</p:commandButton>
+
+						<p:commandButton oncomplete="dlgElimPag.show()"
+							style="background:none; border:0px solid;"
+							icon="ui-icon-trash"
+							update=":frmDlgElim:pnlElim, :frmMenu:pnlMenus">
+							<f:setPropertyActionListener
+								target="#{controladorPagina.paginaSeleccionada}"
+								value="#{varPag}" />
+						</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+		<p:dialog header="Editar página" widgetVar="dlgEditPag"
+			id="iddlgEditarPag" closable="false" resizable="false">
+			<h:form id="frmDlgEdit">
+				<p:panel style="border: 0px;" id="pnlEdit">
+					<p:column>
+						<center>
+							<p:panelGrid columns="2" id="pnlGridCont" style="border: 0px">
+								<p:panelGrid columns="2" id="pnlGridEdit">
+									<h:outputText value="Nombre: " style="font-weight: bold;" />
+									<p:inputText
+										value="#{controladorPagina.paginaSeleccionada.nombre}" />
+
+									<h:outputText value="URL: " style="font-weight: bold;" />
+									<p:inputText
+										value="#{controladorPagina.paginaSeleccionada.url}" />
+
+									<h:outputText value="Icon: " style="font-weight: bold;" />
+									<p:graphicImage
+										value="../#{controladorPagina.paginaSeleccionada.icon}"
+										style="width: 24px; height: 24px;" id="imgIcon" />
+
+									<h:outputText value="Es menú?: " style="font-weight: bold;" />
+									<p:selectBooleanCheckbox
+										value="#{controladorPagina.paginaSeleccionada.esMenu}" />
+
+									<h:outputText value="Padre: " style="font-weight: bold;" />
+									<h:panelGrid columns="2" border="0" rules="rows">
+										<h:outputText
+											value="#{controladorPagina.paginaSeleccionada.pagina.nombre}"
+											id="outTxtPadre" />
+										<p:commandButton value="Quitar Padre" icon="ui-icon-eliminar"
+											id="btnQuitarPadre"
+											update=":frmDlgEdit:outTxtPadre, :frmDlgEdit:pnlGridEdit"
+											rendered="#{((controladorPagina.paginaSeleccionada.pagina.nombre=='')||(controladorPagina.paginaSeleccionada.pagina.nombre==null)) ? false : true}"
+											process=":frmDlgEdit:pnlGridEdit">
+											<f:setPropertyActionListener
+												target="#{controladorPagina.paginaSeleccionada.pagina.nombre}"
+												value="" />
+										</p:commandButton>
+									</h:panelGrid>
+								</p:panelGrid>
+
+								<p:dataTable value="#{controladorPagina.iconos}" var="varIcon"
+									emptyMessage="No existen iconos." selectionMode="single"
+									rowKey="#{varIcon.id}" paginator="true"
+									paginatorPosition="bottom" rows="5"
+									paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+									rowsPerPageTemplate="5">
+
+									<p:ajax event="rowSelect"
+										listener="#{controladorPagina.filaIcon}"
+										update=":frmDlgEdit:imgIcon" />
+
+									<f:facet name="header">  
+						            Seleccione un icono
+						        </f:facet>
+
+									<p:column headerText="Icon">
+										<p:graphicImage value="../#{varIcon.icon}"
+											style="width: 24px; height: 24px;" />
+									</p:column>
+								</p:dataTable>
+							</p:panelGrid>
+						</center>
+						<br />
+						<p:dataTable value="#{controladorPagina.paginasPadres}"
+							var="varPagP" emptyMessage="No existen padres."
+							selection="#{controladorPagina.paginaSeleccionada.pagina}"
+							selectionMode="single" rowKey="#{varPagP.id}" paginator="true"
+							paginatorPosition="bottom" rows="5"
+							paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+							rowsPerPageTemplate="5,10,15">
+
+							<p:ajax event="rowSelect"
+								listener="#{controladorPagina.filaPadre}"
+								update=":frmDlgEdit:pnlGridEdit" />
+
+							<f:facet name="header">  
+						            Seleccione un padre
+						        </f:facet>
+
+							<p:column headerText="Nombre" filterBy="#{varPagP.nombre}">
+								<h:outputText value="#{varPagP.nombre}" />
+							</p:column>
+							<p:column headerText="URL" filterBy="#{varPagP.url}">
+								<h:outputText value="#{varPagP.url}" />
+							</p:column>
+							<p:column headerText="Icon">
+								<p:graphicImage value="../#{varPagP.icon}"
+									style="width: 24px; height: 24px;" />
+							</p:column>
+							<p:column headerText="Es menú?">
+								<p:selectBooleanCheckbox value="#{varPagP.esMenu}"
+									disabled="true" />
+							</p:column>
+						</p:dataTable>
+						<p:commandButton value="Aceptar"
+							action="#{controladorPagina.editar()}"
+							oncomplete="dlgEditPag.hide()"
+							update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre, :frmDlgOrdMen" />
+
+						<p:commandButton value="Cancelar"
+							action="#{controladorPagina.cancelarEditar()}" process="@this"
+							update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre, :frmDlgOrdMen" />
+					</p:column>
+				</p:panel>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="¿Está Seguro que desea eliminar la página?"
+			widgetVar="dlgElimPag" id="iddlgElimPag"
+			closable="false" resizable="false"
+			message="Recuerde que todos los permisos serán revocados.">
+			<h:form id="frmDlgElim">
+				<center>
+					<p:panel style="border: 0px;" id="pnlElim">
+						<p:column>
+							<p:panelGrid columns="2" id="pnlGridElim">
+								<h:outputText value="Nombre: " style="font-weight: bold;" />
+								<h:outputText
+									value="#{controladorPagina.paginaSeleccionada.nombre}" />
+
+								<h:outputText value="URL: " style="font-weight: bold;" />
+								<h:outputText
+									value="#{controladorPagina.paginaSeleccionada.url}" />
+
+								<h:outputText value="Icon: " style="font-weight: bold;" />
+								<p:graphicImage
+									value="../#{controladorPagina.paginaSeleccionada.icon}"
+									style="width: 24px; height: 24px;" />
+
+								<h:outputText value="Es menú?: " style="font-weight: bold;" />
+								<p:selectBooleanCheckbox
+									value="#{controladorPagina.paginaSeleccionada.esMenu}"
+									disabled="true" />
+
+								<h:outputText value="Padre: " style="font-weight: bold;" />
+								<h:outputText
+									value="#{controladorPagina.paginaSeleccionada.pagina.nombre}" />
+							</p:panelGrid>
+						</p:column>
+						<p:commandButton id="confirm" value="Si"
+							action="#{controladorPagina.eliminar()}"
+							oncomplete="dlgElimPag.hide()"
+							update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre, :frmDlgOrdMen" />
+						<p:commandButton id="decline" value="No"
+							action="#{controladorPagina.cancelarEliminar()}"
+							update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre, :frmDlgOrdMen" />
+					</p:panel>
+				</center>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Agregar página" widgetVar="dlgAgrePag"
+			id="iddlgAgrePag" closable="false" resizable="false">
+			<h:form id="frmDlgAgre">
+				<p:panel style="border: 0px;" id="pnlAgre">
+					<p:column>
+						<center>
+							<p:panelGrid columns="2" style="border: 0px">
+								<p:panelGrid columns="2" id="pnlGridAgre">
+									<h:outputText value="Nombre: " style="font-weight: bold;" />
+									<p:inputText
+										value="#{controladorPagina.paginaSeleccionada.nombre}"
+										required="true" requiredMessage="Debe ingresar un nombre." />
+
+									<h:outputText value="URL: " style="font-weight: bold;" />
+									<p:inputText
+										value="#{controladorPagina.paginaSeleccionada.url}"
+										required="true" requiredMessage="Debe ingresar una URL." />
+
+									<h:outputText value="Icon: " style="font-weight: bold;" />
+									<p:graphicImage
+										value="../#{controladorPagina.paginaSeleccionada.icon}"
+										style="width: 24px; height: 24px;" id="imgIcon" />
+
+									<h:outputText value="Es menú?: " style="font-weight: bold;" />
+									<p:selectBooleanCheckbox
+										value="#{controladorPagina.paginaSeleccionada.esMenu}" />
+
+									<h:outputText value="Padre: " style="font-weight: bold;" />
+									<h:panelGrid columns="2" border="0" rules="rows">
+										<h:outputText
+											value="#{controladorPagina.paginaSeleccionada.pagina.nombre}"
+											id="outTxtPadre" />
+										<p:commandButton value="Quitar Padre" icon="ui-icon-eliminar"
+											id="btnQuitarPadre"
+											update=":frmDlgAgre:outTxtPadre, :frmDlgAgre:pnlGridAgre"
+											rendered="#{((controladorPagina.paginaSeleccionada.pagina.nombre=='')||(controladorPagina.paginaSeleccionada.pagina.nombre==null)) ? false : true}"
+											process=":frmDlgAgre:outTxtPadre, frmDlgAgre:btnQuitarPadre">
+											<f:setPropertyActionListener
+												target="#{controladorPagina.paginaSeleccionada.pagina.nombre}"
+												value="" />
+										</p:commandButton>
+									</h:panelGrid>
+								</p:panelGrid>
+
+								<p:dataTable value="#{controladorPagina.iconos}" var="varIcon"
+									emptyMessage="No existen iconos." selectionMode="single"
+									rowKey="#{varIcon.id}" paginator="true"
+									paginatorPosition="bottom" rows="5"
+									paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+									rowsPerPageTemplate="5">
+
+									<p:ajax event="rowSelect"
+										listener="#{controladorPagina.filaIcon}"
+										update=":frmDlgAgre:imgIcon" />
+
+									<f:facet name="header">  
+						            Seleccione un icono
+						        </f:facet>
+
+									<p:column headerText="Icon">
+										<p:graphicImage value="../#{varIcon.icon}"
+											style="width: 24px; height: 24px;" />
+									</p:column>
+								</p:dataTable>
+							</p:panelGrid>
+						</center>
+						<br />
+						<p:dataTable value="#{controladorPagina.paginasPadres}"
+							var="varPagP" emptyMessage="No existen padres."
+							selection="#{controladorPagina.paginaSeleccionada.pagina}"
+							selectionMode="single" rowKey="#{varPagP.id}" paginator="true"
+							paginatorPosition="bottom" rows="5"
+							paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+							rowsPerPageTemplate="5,10,15">
+
+							<p:ajax event="rowSelect"
+								listener="#{controladorPagina.filaPadre}"
+								update=":frmDlgAgre:pnlGridAgre" />
+
+							<f:facet name="header">  
+						            Seleccione un padre
+						        </f:facet>
+
+							<p:column headerText="Nombre" filterBy="#{varPagP.nombre}">
+								<h:outputText value="#{varPagP.nombre}" />
+							</p:column>
+							<p:column headerText="URL" filterBy="#{varPagP.url}">
+								<h:outputText value="#{varPagP.url}" />
+							</p:column>
+							<p:column headerText="Icon">
+								<p:graphicImage value="../#{varPagP.icon}"
+									style="width: 24px; height: 24px;" />
+							</p:column>
+							<p:column headerText="Es menú?">
+								<p:selectBooleanCheckbox value="#{varPagP.esMenu}"
+									disabled="true" />
+							</p:column>
+
+						</p:dataTable>
+
+						<p:commandButton value="Agregar"
+							action="#{controladorPagina.agregar()}"
+							oncomplete="dlgAgrePag.hide()"
+							update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre, :frmDlgOrdMen" />
+
+						<p:commandButton id="btnCancelar" value="Cancelar"
+							action="#{controladorPagina.cancelarAgregar()}"
+							process=":frmDlgAgre:btnCancelar"
+							update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre, :frmDlgOrdMen" />
+					</p:column>
+				</p:panel>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Ordenar menú." widgetVar="dlgOrdMen"
+			id="iddlgOrdMen" closable="false" resizable="false">
+			<h:form id="frmDlgOrdMen">
+				<p:panel style="border: 0px;" id="pnlOrdMen">
+
+					<p:column>
+						<p:orderList value="#{controladorPagina.paginasPadres}"
+							var="varPag" itemValue="#{varPag}" converter="convertidorPagina"
+							controlsLocation="left" id="customList" style="width: auto">
+							<f:facet name="caption">Menús</f:facet>
+
+							<p:column>
+								<p:graphicImage value="../#{varPag.icon}" width="24" height="24" />
+							</p:column>
+							<p:column>#{varPag.nombre}</p:column>
+						</p:orderList>
+					</p:column>
+				</p:panel>
+				<p:commandButton value="Ordenar"
+					action="#{controladorPagina.ordenarMenu()}"
+					oncomplete="dlgOrdMen.hide()" id="btnOrdMenu"
+					update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre, :frmDlgOrdMen" />
+				<p:commandButton id="btnCancelar" value="Cancelar"
+					onclick="dlgOrdMen.hide()" process=":frmDlgOrdMen:btnCancelar" />
+
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>
+</html>

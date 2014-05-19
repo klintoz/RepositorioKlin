@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:body>
+	<link href="#{request.contextPath}/css/menu.css" rel="stylesheet"
+		type="text/css" />
+
+	<h:form id="frmHotkeys">
+		<p:hotkey bind="f1" actionListener="#{controladorMenu.abrirMenu}" />
+
+		<p:hotkey bind="f2" actionListener="#{controladorMenu.cerrarMenu}" />
+	</h:form>
+
+	<p:notificationBar position="top" effect="fade" widgetVar="menu"
+		id="menuOverlay" effectSpeed="fast"
+		autoDisplay="#{controladorMenu.menuSiempreAbierto}">
+		<h:form id="frmDock">
+			<p:dock position="top" id="menu_top" proximity="30" halign="center"
+				itemWidth="40" maxWidth="30" rendered="true">
+				<c:forEach var="var" items="#{controladorMenu.menus}">
+					<p:menuitem value="#{var.nombre}" icon="#{var.icon}"
+						action="#{controladorMenu.cambiarSubMenu()}"
+						update=":frmStk:stkBot">
+						<f:setPropertyActionListener target="#{menuDataManager.menuClick}"
+							value="#{var}" />
+					</p:menuitem>
+				</c:forEach>
+
+				<p:menuitem value="#{controladorMenu.menuLogout.nombre}"
+					icon="#{controladorMenu.menuLogout.icon}"
+					action="#{usuarioDataManager.logout()}" />
+
+			</p:dock>
+			<div id="menuFixed">
+				<p:commandButton
+					actionListener="#{controladorMenu.mantenerMenuAbierto()}"
+					icon="ui-icon-pin" style="background:none; border:0px solid;"
+					rendered="#{!controladorMenu.menuSiempreAbierto}" />
+				<p:commandButton
+					actionListener="#{controladorMenu.mantenerMenuAbierto()}"
+					icon="ui-icon-pin ui-icon-pin-activo"
+					style="background:none; border:0px solid;"
+					rendered="#{controladorMenu.menuSiempreAbierto}" />
+				<p:commandButton actionListener="#{controladorMenu.cerrarMenu}"
+					icon="ui-icon-cerrar" style="background:none; border:0px solid;" />
+			</div>
+		</h:form>
+	</p:notificationBar>
+	<h:form id="frmIconMenu">
+		<div id="menuIconFixed">
+			<p:commandButton actionListener="#{controladorMenu.abrirMenu}"
+				icon="ui-icon-abrir-menu" style="background:none; border:0px solid;" />
+		</div>
+	</h:form>
+</h:body>
+</html>

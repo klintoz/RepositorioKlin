@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/templates/templateLayoutMenuGeneral.xhtml">
+	<ui:define name="tituloPagina">Gestión de Roles</ui:define>
+	<ui:define name="contenido">
+		<h:form id="frmMenu">
+			<p:panel id="pnlMenus">
+				<f:facet name="header">
+					<h:outputText value="Gestión de Roles.     " />
+					<p:commandButton value="Nuevo rol"
+						action="#{controladorRol.abrirAgregar()}" update=":frmDlgAgre" />
+					<p:commandButton value="Asignar permisos"
+						action="#{controladorRol.asignarPermisos()}" />
+					<p:commandButton value="Gestión de páginas"
+						action="#{controladorRol.gestionPaginas()}" />
+				</f:facet>
+				<p:dataTable value="#{controladorRol.roles}" var="varRol"
+					sortBy="#{varRol.nombre}">
+					<p:column headerText="Nombre" filterBy="#{varRol.nombre}">
+						<h:outputText value="#{varRol.nombre}" />
+					</p:column>
+					<p:column headerText="Redicción" filterBy="#{varRol.pagina.nombre}">
+						<h:outputText value="Nombre: " style="font-weight:bold;" />
+						<h:outputText value="#{varRol.pagina.nombre}   " />
+						<p:graphicImage value="../#{varRol.pagina.icon}"
+							style="width: 24px; height: 24px;" />
+						<br />
+						<h:outputText value="URL: " style="font-weight:bold;" />
+						<h:outputText value="#{varRol.pagina.url}" />
+					</p:column>
+					<p:column headerText="Acciones">
+						<p:commandButton action="#{controladorRol.abrirEditar()}"
+							style="background:none; border:0px solid;" icon="ui-icon-pencil"
+							update=":iddlgEditarRol">
+							<f:setPropertyActionListener target="#{controladorRol.rol}"
+								value="#{varRol}" />
+						</p:commandButton>
+
+						<p:commandButton oncomplete="dlgElimRol.show()"
+							style="background:none; border:0px solid;"
+							icon="ui-icon-trash"
+							update=":frmDlgElim:pnlElim, :frmMenu:pnlMenus">
+							<f:setPropertyActionListener target="#{controladorRol.rol}"
+								value="#{varRol}" />
+						</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+		
+		<p:dialog header="Editar rol" widgetVar="dlgEditRol"
+			id="iddlgEditarRol" closable="false" resizable="false">
+			<h:form id="frmDlgEdit">
+				<p:panel style="border: 0px;" id="pnlEdit">
+					<p:column>
+						<center>
+							<h:outputText value="Nombre: " />
+							<p:inputText value="#{controladorRol.rol.nombre}" required="true"
+								requiredMessage="Debe ingresar el nombre del rol.">
+							</p:inputText>
+							<p:panel id="pnlRedir" header="Redirección">
+								<h:outputText value="Nombre: " style="font-weight:bold;" />
+								<h:outputText value="#{controladorRol.rol.pagina.nombre}   " />
+								<p:graphicImage value="../#{controladorRol.rol.pagina.icon}"
+									style="width: 24px; height: 24px;" />
+								<br />
+								<h:outputText value="URL: " style="font-weight:bold;" />
+								<h:outputText value="#{controladorRol.rol.pagina.url}" />
+							</p:panel>
+						</center>
+					</p:column>
+					<p:column>
+						<p:dataTable value="#{controladorRol.paginas}" var="varPag"
+							emptyMessage="No existen paginas."
+							selection="#{controladorRol.pagina}" selectionMode="single"
+							rowKey="#{varPag.id}" paginator="true" paginatorPosition="bottom"
+							rows="5"
+							paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+
+							<p:ajax event="rowSelect" listener="#{controladorRol.filaPagina}"
+								update=":frmDlgEdit:pnlRedir" />
+
+							<f:facet name="header">  
+						            Seleccione una Redirección
+						        </f:facet>
+
+							<p:column headerText="Nombre" filterBy="#{varPag.nombre}">
+								<h:outputText value="#{varPag.nombre}" />
+							</p:column>
+							<p:column headerText="URL" filterBy="#{varPag.url}">
+								<h:outputText value="#{varPag.url}" />
+							</p:column>
+							<p:column headerText="Icon">
+								<p:graphicImage value="../#{varPag.icon}"
+									style="width: 24px; height: 24px;" />
+							</p:column>
+							<p:column headerText="Es menú?">
+								<p:selectBooleanCheckbox value="#{varPag.esMenu}"
+									disabled="true" />
+							</p:column>
+
+						</p:dataTable>
+					</p:column>
+					<p:commandButton value="Aceptar"
+						action="#{controladorRol.editar()}" oncomplete="dlgEditRol.hide()"
+						update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+
+					<p:commandButton value="Cancelar"
+						action="#{controladorRol.cancelarEditar()}" process="@this"
+						update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+
+				</p:panel>
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="¿Está Seguro que desea eliminar el rol?"
+			widgetVar="dlgElimRol" id="iddlgElimRol"
+			closable="false" resizable="false"
+			message="Recuerde que todos los permisos serán revocados.">
+			<h:form id="frmDlgElim">
+				<center>
+					<p:panel style="border: 0px;" id="pnlElim">
+						<p:column>
+							<center>
+								<h:outputText value="Nombre: " />
+								<h:outputText value="#{controladorRol.rol.nombre}" />
+								<p:panel id="pnlRedir" header="Redirección">
+									<h:outputText value="Nombre: " style="font-weight:bold;" />
+									<h:outputText value="#{controladorRol.rol.pagina.nombre}   " />
+									<p:graphicImage value="../#{controladorRol.rol.pagina.icon}"
+										style="width: 24px; height: 24px;" />
+									<br />
+									<h:outputText value="URL: " style="font-weight:bold;" />
+									<h:outputText value="#{controladorRol.rol.pagina.url}" />
+								</p:panel>
+							</center>
+						</p:column>
+					</p:panel>
+				</center>
+				<p:commandButton id="confirm" value="Si"
+					action="#{controladorRol.eliminar()}"
+					update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+				<p:commandButton id="decline" value="No"
+					action="#{controladorRol.cancelarEliminar()}"
+					update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+			</h:form>
+		</p:dialog>
+
+		<p:dialog header="Agregar rol" widgetVar="dlgAgreRol"
+			id="iddlgAgreRol" closable="false" resizable="false">
+			<h:form id="frmDlgAgre">
+				<p:panel style="border: 0px;" id="pnlAgre">
+					<p:column>
+						<center>
+							<h:outputText value="Nombre: " />
+							<p:inputText value="#{controladorRol.rol.nombre}" required="true"
+								requiredMessage="Debe ingresar el nombre del rol." />
+							<p:panel id="pnlRedir" header="Redirección">
+								<h:outputText value="Nombre: " style="font-weight:bold;" />
+								<h:outputText value="#{controladorRol.rol.pagina.nombre}   " />
+								<p:graphicImage value="../#{controladorRol.rol.pagina.icon}"
+									style="width: 24px; height: 24px;" />
+								<br />
+								<h:outputText value="URL: " style="font-weight:bold;" />
+								<h:outputText value="#{controladorRol.rol.pagina.url}" />
+							</p:panel>
+						</center>
+					</p:column>
+					<p:column>
+						<p:dataTable value="#{controladorRol.paginas}" var="varPag"
+							emptyMessage="No existen paginas."
+							selection="#{controladorRol.pagina}" selectionMode="single"
+							rowKey="#{varPag.id}" paginator="true" paginatorPosition="bottom"
+							rows="5"
+							paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="5,10,15">
+
+							<p:ajax event="rowSelect" listener="#{controladorRol.filaPagina}"
+								update=":frmDlgAgre:pnlRedir" />
+
+							<f:facet name="header">  
+						            Seleccione una Redirección
+						        </f:facet>
+
+							<p:column headerText="Nombre" filterBy="#{varPag.nombre}">
+								<h:outputText value="#{varPag.nombre}" />
+							</p:column>
+							<p:column headerText="URL" filterBy="#{varPag.url}">
+								<h:outputText value="#{varPag.url}" />
+							</p:column>
+							<p:column headerText="Icon">
+								<p:graphicImage value="../#{varPag.icon}"
+									style="width: 24px; height: 24px;" />
+							</p:column>
+							<p:column headerText="Es menú?">
+								<p:selectBooleanCheckbox value="#{varPag.esMenu}"
+									disabled="true" />
+							</p:column>
+
+						</p:dataTable>
+					</p:column>
+					<p:commandButton value="Agregar"
+						action="#{controladorRol.agregar()}"
+						update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+
+					<p:commandButton id="btnCancelar" value="Cancelar"
+						action="#{controladorRol.cancelarAgregar()}"
+						process=":frmDlgAgre:btnCancelar"
+						update=":frmMenu:pnlMenus, :frmDlgEdit, :frmStk, :menuOverlay, :frmDlgAgre" />
+				</p:panel>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+</ui:composition>
+</html>

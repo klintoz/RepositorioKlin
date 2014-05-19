@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmPrograma">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarPrograma" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nueva Programa" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorPrograma.nuevoPlan}"
+			             				  update="frmPrograma"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Programa" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlDatosPlan" 
+						 				  action="#{controladorPrograma.insertarPlan}" 
+						 				  update="frmPrograma"
+						 				  disabled="#{controladorPrograma.botonInsertarPlan}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Programa"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlDatosPlan"
+						 				  action="#{controladorPrograma.actualizarPlan}" 
+						 				  update="frmPrograma"
+						 				  disabled="#{controladorPrograma.botonActualizarPlan}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Programa" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorPrograma.abrirDialogoEliminarPrograma}"
+					                      disabled="#{controladorPrograma.botonEliminarPlan}"/> 
+	 
+					     <p:commandButton id="cmbIrBuscar" title="Buscar" value="Buscar" icon="ui-icon-search"
+										  process="@this"
+										  action="#{controladorPrograma.abrirDialogoBuscarPlan()}"
+										  update=":frmBuscarPlan"/>
+					                                               
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+				          <p:commandButton  title="Recuperar Lista " icon="ui-icon-folder-open"
+				          					process="@this"
+				          					action="#{controladorPrograma.cargarListaProgramas()}"
+				         					update="pnlListaPrograma"/>
+				</p:toolbarGroup>
+				<br />
+			</p:toolbar>
+			<br />
+			<p:panel header="DATOS PLAN" style="max-width:400px;min-height:100px;">
+				<h:panelGrid id="pnlDatosPlan" columns="2" >
+				 <h:outputText value="" />
+				  <h:outputText value="" />
+				  <h:outputText value="" />
+				  <h:outputText value="" />
+				  <h:outputText value="PLAN: " />
+				  <p:inputText value="#{controladorPrograma.plan.descripcion}"/>	 
+				</h:panelGrid>
+			 </p:panel>
+			 <p:separator/>
+			 <p:panel  header="DATOS PROGRAMA" style="max-width:500px;min-height:100px;">
+				 <h:panelGrid id="pnlDatosPrograma" columns="2">
+			    	 <h:outputText value="Programa: " />
+					 <p:inputText value="#{controladorPrograma.programa.descripcion}"/>
+					 <h:outputText value="Administrador: " />
+					 <p:selectOneMenu value="#{controladorPrograma.idPersona}" id="oneMenuPersona">
+						<f:selectItem itemLabel="  -- Seleccione --" itemValue="0"/>
+						<f:selectItems value="#{controladorPrograma.lstPersonas}" var="varPers"
+							itemValue="#{varPers.id}" itemLabel="#{varPers.nombre} #{varPers.apellido}"/>
+					 </p:selectOneMenu>
+					 
+					 <p:commandButton
+					 	process="@this, pnlDatosPrograma"
+					 	action="#{controladorPrograma.agregarPrograma()}"  
+					 	update="pnlListaPrograma,pnlDatosPrograma"
+					 	disabled="#{controladorPrograma.botonInsertarPrograma}"
+					 	icon="ui-icon-plusthick"/>
+					 	
+					 <p:commandButton
+					 	process="@this,pnlDatosPrograma"
+					 	action="#{controladorPrograma.actualizarPrograma}"
+					 	update="pnlListaPrograma,pnlDatosPrograma"
+					 	disabled="#{controladorPrograma.botonActualizarPrograma}"
+					 	icon="ui-icon-arrowreturn-1-s"/>
+					 	
+					 <p:commandButton value="Proyectos"
+					    process="@this"
+					    action="#{controladorPrograma.irProyectos()}"/>
+				 </h:panelGrid>
+			 </p:panel>
+			 <br />
+			 <h:panelGrid id="pnlListaPrograma">
+				 <p:dataTable id="dtablaPrograma" value="#{controladorPrograma.generalDM.lstProgramas}" var="varPrograma"
+				    paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE PROGRAMAS" />
+				 </f:facet>	
+				 	  <p:column headerText="PLAN">
+						  	<h:outputText value="#{varPrograma.plan.descripcion}" />
+					  </p:column>	  
+					  <p:column filterBy="#{varPrograma.descripcion}" sortBy="#{varPrograma.descripcion}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="PROGRAMAS" />
+						 	</f:facet>
+						 	<h:outputText value="#{varPrograma.descripcion}" />
+					  </p:column>
+					  <p:column headerText="ADMINISTRADOR">
+						  	<h:outputText value="#{varPrograma.persona.nombre} #{varPrograma.persona.apellido}" />
+					  </p:column>
+					  <p:column headerText="Seleccionar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Programa" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorPrograma.habilitarModificarPrograma()}"
+								update=":frmPrograma:pnlDatosPrograma :frmPrograma:toolbarPrograma">
+								<f:setPropertyActionListener target="#{controladorPrograma.programa}" value="#{varPrograma}"/>
+								<f:setPropertyActionListener target="#{controladorPrograma.idPersona}" value="#{varPrograma.persona.id}"/>
+							</p:commandButton>
+						</p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:dialog widgetVar="dlgEliminarPrograma" header="! Eliminar Programa" showEffect="explode">
+		<h:form id="fmrEliminarPrograma">
+			<h:outputText value="¿Está seguro que desea eliminar este Programa?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorPrograma.eliminarPlan}" 
+				oncomplete="dlgEliminarPrograma.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarPrograma.hide()"/>
+		</h:form>
+	</p:dialog>
+	
+	
+	<p:dialog widgetVar="dlgBuscarPlan" position="center"   header="INFORMACION DE PLAN">
+		<h:form id="frmBuscarPlan">
+			<p:toolbar >
+				<p:toolbarGroup align="left">
+					<h:outputText value="Nombre: " />
+					<p:inputText id="txtNombre" value="#{controladorPrograma.nombrePlanABuscar}"/>
+					<p:commandButton id="cmbBuscarNombre"  title="Buscar por Nombre" 
+									 value="Buscar"  icon="ui-icon-search"
+					                 process="@this, txtNombre" 
+					                 action="#{controladorPrograma.buscarPlanPorNombres()}"
+					                 update=":frmBuscarPlan:pnlTablaPlan" />
+				    <p:separator/>
+					
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:commandButton id="cmbBuscarTodas" title="Cargar todas"
+							value="Todas" icon="ui-icon-search"
+							process="@this"
+							action="#{controladorPrograma.cargarListaPlanes()}"
+							update="pnlTablaPlan"/>
+				</p:toolbarGroup>
+			</p:toolbar>
+			<br />
+			<p:panelGrid id="pnlTablaPlan" columns="1">
+				<p:dataTable value="#{controladorPrograma.lstPlans}" var="varPlan"
+					paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10">
+					 <p:column headerText="DESCRIPCION">
+					 	<h:outputText value="#{varPlan.descripcion}" />
+					 </p:column>
+					 <p:column headerText="Seleccionar">
+					 	<p:commandButton id="cmbSeleccionar" title="Seleccionar " icon="ui-icon-check"
+					 		process="@this"
+					 	    action="#{controladorPrograma.habilitarEditarPlan()}"
+					 	    update=":frmPrograma:pnlDatosPlan,:frmPrograma:pnlListaPrograma, :frmPrograma:toolbarPrograma"
+					 	    oncomplete="dlgBuscarPlan.hide()">
+					 		<f:setPropertyActionListener target="#{controladorPrograma.plan}" value="#{varPlan}"/>
+					 	</p:commandButton>		 
+					 </p:column>
+				</p:dataTable>
+			</p:panelGrid>
+		</h:form>
+	</p:dialog>
+</ui:define>
+</ui:composition>
+</html>

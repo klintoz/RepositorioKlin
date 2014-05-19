@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmGrupoDatos">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarGrupoDtos" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nuevo Grupo" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorGrupoDatos.nuevoGrupoDato}"
+			             				  update="frmGrupoDatos"/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Grupo" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlGrupoDtos, toolbarGrupoDtos" 
+						 				  action="#{controladorGrupoDatos.insertarGrupoDtos()}" 
+						 				  update="frmGrupoDatos"
+						 				  disabled="#{controladorGrupoDatos.botonInsertarGrupoDto}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Grupo"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlGrupoDtos"
+						 				  action="#{controladorGrupoDatos.actualizarGrupoDtos}" 
+						 				  update="frmGrupoDatos"
+						 				  disabled="#{controladorGrupoDatos.botonActualizarGrupoDto}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Grupo" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                      action="#{controladorGrupoDatos.abrirDialogoEliminarEquipamiento}"
+					                      disabled="#{controladorGrupoDatos.botonEliminarGrupoDtos}"/> 
+	 
+					    
+					                                               
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+						 <p:commandButton id="cmbIrBuscar" title="Buscar" value="Buscar" icon="ui-icon-search"
+										  process="@this"
+										  action="#{controladorGrupoDatos.abrirDialogoBuscarGrupoDtos()}"
+										  update=":frmBuscarGrupoDtos"/>
+						 <p:commandButton id="cmbIrAtributos" value="Atributos"
+					    				  process="@this"
+					    				  action="#{controladorGrupoDatos.irAtributos()}"/>
+				</p:toolbarGroup>
+				<br />
+			</p:toolbar>
+			<br />
+			<p:panel header="Grupo de Datos" style="max-width:400px;min-height:100px;">
+				<h:panelGrid id="pnlGrupoDtos" columns="2" >
+				 <h:outputText value="" />
+				  <h:outputText value="" />
+				  <h:outputText value="" />
+				  <h:outputText value="" />
+				  <h:outputText value="(**)GRUPO DE DATO: " />
+				  <p:inputText value="#{controladorGrupoDatos.grupoDato.descripcion}"/>	 
+				</h:panelGrid>
+			 </p:panel>
+			 <p:separator/>
+			 <p:panel  header="DATOS EQUIPAMIENTO Y CONECTIVIDAD" style="max-width:500px;min-height:100px;">
+				 <h:panelGrid id="pnlSetAtributos" columns="2">
+			    	 <h:outputText value="Equipo: " />
+					 <p:inputText id="iptEquipo" value="#{controladorGrupoDatos.equipo.descripcion}"/>
+					 <p:watermark for="iptEquipo" value="Equipo" />
+					 <h:outputText value="" />
+					 <h:outputText value="Orden: " />
+					 <p:inputText id="orden" value="#{controladorGrupoDatos.equipo.orden}"/>
+					 <p:watermark for="orden" value="Número de Orden" />
+					 <h:outputText value="" />
+					 <h:outputText value="Seriado: " />
+					 <p:selectOneMenu value="#{controladorGrupoDatos.idSeriado}">
+					 	<f:selectItem  itemLabel="--Seleccionar--" itemValue="0"/>
+					 	<f:selectItem itemLabel="Si" itemValue="1"/>
+					 	<f:selectItem itemLabel="No" itemValue="2"/>
+					 </p:selectOneMenu>
+					 <p:commandButton title="Agregar equipo"
+					 	process="@this, pnlSetAtributos"
+					 	action="#{controladorGrupoDatos.agregarEquipos}"  
+					 	update="pnlListSetAtriEquipos,pnlSetAtributos"
+					 	disabled="#{controladorGrupoDatos.botonInsertarSetatributo}"
+					 	icon="ui-icon-plusthick"/>
+					 	
+					 <p:commandButton title="Actualizar equipo"
+					 	process="@this,pnlSetAtributos"
+					 	action="#{controladorGrupoDatos.actualizarEquipo}"
+					 	update="pnlListSetAtriEquipos,pnlSetAtributos, toolbarGrupoDtos"
+					 	disabled="#{controladorGrupoDatos.botonActualizarSetatributo}"
+					 	icon="ui-icon-arrowreturn-1-s"/>
+				
+				 </h:panelGrid>
+			 </p:panel>  
+			 <br />
+			   
+			 <h:panelGrid id="pnlListSetAtriEquipos">
+				 <p:dataTable id="dtablaSetEquipos" value="#{controladorGrupoDatos.lstEquipos}" var="varSetAtrib"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE ATRIBUTOS EQUIPO" />
+				 </f:facet>		  
+					  <p:column filterBy="#{varSetAtrib.descripcion}" sortBy="#{varSetAtrib.descripcion}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="EQUIPO" />
+						 	</f:facet>
+						 	<h:outputText value="#{varSetAtrib.descripcion}" />
+					  </p:column>
+					  <p:column headerText="ORDEN">
+						  	<h:outputText value="#{varSetAtrib.orden}" />
+					  </p:column>
+					  <p:column headerText="SERIADO">
+						  	<h:outputText value="#{varSetAtrib.seriado}" />
+					  </p:column>
+					  <p:column headerText="Editar">
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Equipo" icon="ui-icon-pencil"
+								process="@this"
+								action="#{controladorGrupoDatos.habilitarModificarEquipos()}"
+								update=":frmGrupoDatos:pnlSetAtributos, :frmGrupoDatos:toolbarGrupoDtos, :frmGrupoDatos:pnlListSetAtriEquipos" >
+								<f:setPropertyActionListener target="#{controladorGrupoDatos.equipo}" value="#{varSetAtrib}"/>
+							</p:commandButton>
+						</p:column>
+						<p:column headerText="Eliminar">
+					  		<p:commandButton id="cmbEliminar" title="Eliminar Equipo" icon="ui-icon-trash"
+								process="@this"
+								action="#{controladorGrupoDatos.eliminarEquipo()}"
+								update=":frmGrupoDatos:pnlListSetAtriEquipos"
+								disabled="#{controladorGrupoDatos.botonEliminarSetatributo}" >
+								<f:setPropertyActionListener target="#{controladorGrupoDatos.equipo}" value="#{varSetAtrib}"/>
+							</p:commandButton>
+						</p:column>
+						
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		
+		<p:dialog widgetVar="dlgEliminarEquipo" header="! Eliminar Equipo" showEffect="explode">
+		<h:form id="fmrEliminarEquipo">
+			<h:outputText value="¿Está seguro que desea eliminar este Equipo?"/>
+			<p:commandButton value="Aceptar" 
+				process="@this" 
+				action="#{controladorGrupoDatos.eliminarGrupoDtos}" 
+				oncomplete="dlgEliminarEquipo.hide()"/>
+			<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarEquipo.hide()"/>
+		</h:form>
+	</p:dialog>
+	
+	<p:dialog widgetVar="dlgBuscarGrupoDatos" position="center"   header="INFORMACION DE GRUPO DE DATO">
+		<h:form id="frmBuscarGrupoDtos">
+			<p:toolbar >
+				<p:toolbarGroup align="left">
+					<h:outputText value="Nombre: " />
+					<p:inputText id="txtNombre" value="#{controladorGrupoDatos.nombreGrupoDtoABuscar}"/>
+					<p:commandButton id="cmbBuscarNombre"  title="Buscar por Nombre" 
+									 value="Buscar"  icon="ui-icon-search"
+					                 process="@this, txtNombre" 
+					                 action="#{controladorGrupoDatos.buscarGrupoDtosPorNombre()}"
+					                 update=":frmBuscarGrupoDtos:pnlTablaGrupoDtos" />
+				    <p:separator/>
+					
+				</p:toolbarGroup>
+				<p:toolbarGroup align="right">
+					<p:commandButton id="cmbBuscarTodas" title="Cargar todas"
+							value="Todas" icon="ui-icon-search"
+							process="@this"
+							action="#{controladorGrupoDatos.cargarListaGrupoDatos()}"
+							update="pnlTablaGrupoDtos"/>
+				</p:toolbarGroup> 
+			</p:toolbar>
+			<br />
+			<p:panelGrid id="pnlTablaGrupoDtos" columns="1">
+				<p:dataTable value="#{controladorGrupoDatos.lstGrupoDto}" var="varGrupoDtos"
+					paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10">
+					 <p:column headerText="DESCRIPCION">
+					 	<h:outputText value="#{varGrupoDtos.descripcion}" />
+					 </p:column>
+					 <p:column headerText="Seleccionar">
+					 	<p:commandButton id="cmbSeleccionar" title="Seleccionar " icon="ui-icon-check"
+					 		process="@this"
+					 	    action="#{controladorGrupoDatos.habilitarEditarGrupoDtos()}"
+					 	    update=":frmGrupoDatos:pnlGrupoDtos,:frmGrupoDatos:pnlListSetAtriEquipos, :frmGrupoDatos:toolbarGrupoDtos"
+					 	    oncomplete="dlgBuscarGrupoDatos.hide()"> 
+					 		<f:setPropertyActionListener target="#{controladorGrupoDatos.grupoDato}" value="#{varGrupoDtos}"/>
+					 	</p:commandButton>		 
+					 </p:column>
+				</p:dataTable>
+			</p:panelGrid>
+		</h:form>
+	</p:dialog>
+</ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/templates/templateLayoutMenuGeneral.xhtml">
+	<ui:define name="tituloPagina">Gestión de permisos</ui:define>
+	<ui:define name="contenido">
+		<h:form id="frmPagRol">
+			<p:panel id="pnlMenus">
+				<f:facet name="header">
+					<h:outputText value="Gestión página rol.     " />
+					<p:selectOneMenu value="#{controladorPaginaRol.rol.id}"
+						style="top:8px;">
+						<p:ajax event="change"
+							listener="#{controladorPaginaRol.llenarTabla}">
+						</p:ajax>
+						<f:selectItem itemLabel="Escoja un rol" itemValue="-1" />
+						<f:selectItems value="#{controladorPaginaRol.roles}"
+							var="varRoles" itemLabel="#{varRoles.nombre}"
+							itemValue="#{varRoles.id}">
+						</f:selectItems>
+					</p:selectOneMenu>
+					<p:commandButton value="Aceptar cambios"
+						action="#{controladorPaginaRol.aceptarCambios()}"></p:commandButton>
+					<p:commandButton value="Gestión de páginas"
+						action="#{controladorPaginaRol.gestionPaginas()}" />
+					<p:commandButton value="Gestión de roles"
+						action="#{controladorPaginaRol.gestionRol()}"></p:commandButton>
+				</f:facet>
+
+				<p:dataTable value="#{controladorPaginaRol.paginasAux}" var="varPag"
+					sortBy="#{varPag.pagina.nombre}" rows="8" paginator="true"
+					paginatorPosition="bottom"
+					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					emptyMessage="No existen registros." id="dttPaginasRol">
+
+
+					<p:column headerText="Seleccionar">
+						<p:selectBooleanCheckbox value="#{varPag.pagina.seleccionadoRol}">
+						</p:selectBooleanCheckbox>
+					</p:column>
+
+
+					<p:column headerText="Nombre" filterBy="#{varPag.pagina.nombre}">
+						<h:outputText value="#{varPag.pagina.nombre}" />
+					</p:column>
+					<p:column headerText="URL" filterBy="#{varPag.pagina.url}">
+						<h:outputText value="#{varPag.pagina.url}" />
+					</p:column>
+					<p:column headerText="Icon">
+						<h:outputText value="#{varPag.pagina.icon}" />
+						<br />
+						<p:graphicImage value="../#{varPag.pagina.icon}"
+							style="width: 24px; height: 24px;" />
+					</p:column>
+					<p:column headerText="Es menú?">
+						<p:selectBooleanCheckbox value="#{varPag.pagina.esMenu}"
+							disabled="true" />
+					</p:column>
+					<p:column headerText="Padre"
+						filterBy="#{varPag.pagina.pagina.nombre}">
+						<h:outputText value="#{varPag.pagina.pagina.nombre}" />
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

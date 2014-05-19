@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"> 
+
+<ui:composition template="/templates/clearTemplate.xhtml">
+<ui:define name="contenido">
+<p:growl autoUpdate="true"></p:growl>
+		<h:form id="frmInversion">
+			<p:growl autoUpdate="true"/>
+			<p:toolbar id="toolbarInversion" style="width:700px;">
+			   <p:toolbarGroup align="left">
+			             <p:commandButton id="cmbNuevo" title="Nuevo Inversion" value="Nuevo" icon="ui-icon-document"
+			             				  process="@this"
+			             				  action="#{controladorGestionInversion.nuevoInversion}"
+			             				  update="pnlDatosInversion, toolbarInversion "/>
+					
+						 <p:commandButton id="cmbInsertar" title="Insertar Inversion" value="Insertar" icon="ui-icon-disk"
+						 				  process="@this,pnlDatosInversion" 
+						 				  action="#{controladorGestionInversion.insertarInversion}" 
+						 				  update="frmInversion,pnlDatosInversion"
+						 				  disabled="#{controladorGestionInversion.botonInsertarInversion}"/>
+						 				  
+						 <p:commandButton id="cmbActualizar" title="Actualizar Inversion"  value="Actualizar" icon="ui-icon-arrowrefresh-1-w"
+						 				  process="@this,pnlDatosInversion"
+						 				  action="#{controladorGestionInversion.actualizarInversion}" 
+						 				  update="frmInversion,pnlDatosInversion"
+						 				  disabled="#{controladorGestionInversion.botonActualizarInversion}"/>
+						 				  
+					     <p:commandButton id="cmbEliminar" title="Eliminar Inversion" value="Eliminar" icon="ui-icon-trash"
+					     				  process="@this"
+					                       action="#{controladorGestionInversion.abrirDialogoEliminarInversion}"
+					                      disabled="#{controladorGestionInversion.botonEliminarInversion}"/>                                                     
+				</p:toolbarGroup>
+				
+				<p:toolbarGroup align="right">
+					   	  <p:inputText id="txtNombreInversion" value="#{controladorGestionInversion.nombreInversionABuscar}"/>
+				          <p:commandButton value="Buscar" 
+				                          action="#{controladorGestionInversion.buscarInversion()}"
+				                          process="@this,txtNombreInversion"
+				                          update="pnlListaInversiones, txtNombreInversion"/>
+				</p:toolbarGroup>
+				<br /> 
+			</p:toolbar>
+			<br />
+			<p:panel  header="Escoja el Convenio al cuál Pertenecerá la Inversión" style="max-width:350px;min-height:100px;">
+			<h:outputText value="" />
+			<h:outputText value="CONVENIO: " />
+			<h:outputText value="" />
+							<p:selectOneMenu value="#{generalDataManager.idConvenio}" id="oneMenuConvenio">
+								<f:selectItem itemLabel=" -- Seleccione -- " itemValue="0"/>
+								<f:selectItems value="#{controladorGestionInversion.lstConvenios}" var="varConvenios"
+									itemValue="#{varConvenios.convenioid}" itemLabel="#{varConvenios.descripcion}"/>
+								<p:ajax event="change"
+										process="@this,oneMenuConvenio"
+										listener="#{controladorGestionInversion.cargarListaInversion()}"
+										update="pnlListaInversiones"/>	
+							</p:selectOneMenu>
+			</p:panel>
+			<p:separator/>
+			
+			<p:panel header="CREE LA INVERSION" style="max-width:400px;min-height:100px;">
+				<h:panelGrid id="pnlDatosInversion" columns="2" >
+					<h:outputText value="NOMBRE INVERSION : " />
+					<p:inputText value="#{generalDataManager.inversion.descripcion}"/>
+					<h:outputText value="Tipo de Inversión: " />
+							<p:selectOneMenu value="#{controladorGestionInversion.idTipoInversion}" id="oneMenuTipoInversion">
+								<f:selectItem itemLabel="-- Seleccione --" itemValue="0"/>
+								<f:selectItems value="#{controladorGestionInversion.lstTipoinversions}" var="varTipoInversion"
+									itemValue="#{varTipoInversion.tipoinversionid}" itemLabel="#{varTipoInversion.descripcion}"/>
+								<p:ajax event="change"
+										process="@this,oneMenuTipoInversion"
+										listener="#{controladorGestionInversion.cargarListaInversion()}"
+										update="pnlListaInversiones"/>	
+							 </p:selectOneMenu>
+					<h:outputText value="Presupuesto: " />
+					<p:inputText value="#{generalDataManager.inversion.presupuestocalculado}"/>
+				 </h:panelGrid>
+			 </p:panel>
+			 <br />
+			 
+			 <h:panelGrid id="pnlListaInversiones">
+				 <p:dataTable id="dtablaInversiones" value="#{generalDataManager.lstInversiones}" var="varInversion"
+				 paginator="true" rows="5"
+					paginatorTemplate = "{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15">
+				 <f:facet name="header">
+				 	<h:outputText value="LISTA DE INVERSIONES" />
+				 </f:facet>	
+				 	  <p:column headerText="CONVENIO">
+						  	<h:outputText value="#{varInversion.convenio.descripcion}"/>
+					  </p:column>
+					  <p:column filterBy="#{varConvenio.descripcion}" sortBy="#{varConvenio.descripcion}" >
+						 	<f:facet name="header">
+						 		<h:outputText value="INVERSION" />
+						 	</f:facet>
+						 	<h:outputText value="#{varInversion.descripcion}" />
+					  </p:column>
+					  <p:column headerText="TIPO INVERSION">
+						  	<h:outputText value="#{varInversion.tipoinversion.descripcion}" />
+					  </p:column>
+					   <p:column headerText="PRESUPUESTO">
+						  	<h:outputText value="#{varInversion.presupuestocalculado}" />
+					  </p:column>
+					  
+					  <p:column headerText="Seleccionar">
+					  
+					  		<p:commandButton id="cmbSeleccionar" title="Seleccionar Inversion" icon="ui-icon-check"
+								process="@this" 
+								action="#{controladorGestionInversion.recuperarInversion()}"
+								update=":frmInversion:pnlDatosInversion :frmInversion:toolbarInversion">
+								<f:setPropertyActionListener target="#{generalDataManager.inversion}" value="#{varInversion}"/>
+								<f:setPropertyActionListener target="#{controladorGestionInversion.idTipoInversion}" value="#{varInversion.tipoinversion.tipoinversionid}"/>
+							</p:commandButton>
+							
+							<p:commandButton id="cmbIrPlanInversion" value=" Plan Inversion" title="Ingrese"
+											 process="@this"
+											 action="#{controladorGestionInversion.irPlaninversio()}">
+											 <f:setPropertyActionListener target="#{generalDataManager.inversion}" value="#{varInversion}"/>
+							</p:commandButton>
+							
+					 </p:column>
+				 </p:dataTable>
+			</h:panelGrid>
+		</h:form>
+		<p:dialog widgetVar="dlgEliminarInversion" header="! Eliminar Inversión" showEffect="explode">
+			<h:form id="fmrEliminarInversion">
+			<h:outputText value="¿Está seguro que desea eliminar este Inversión?"/>
+				<p:commandButton value="Aceptar" 
+					process="@this" 
+					action="#{controladorGestionInversion.eliminarInversion()}" 
+					update=":frmInversion"
+					oncomplete="dlgEliminarInversion.hide()"/>
+				<p:commandButton value="Cancelar" process="@this" oncomplete="dlgEliminarInversion.hide()"/>
+			</h:form>
+		</p:dialog>	
+	<p:separator/>
+	</ui:define>
+</ui:composition> 
+</html>
