@@ -9,5 +9,9 @@ public class NuevaClase {
 		// TODO Auto-generated method stub
 
 	}
+	
+	public void yavamosacomer(){
+		/// te amo mucho mi piojita
+	}
 
 }
