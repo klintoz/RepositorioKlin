@@ -12,6 +12,7 @@ public class NuevaClase {
 	
 	public void yavamosacomer(){
 		/// te amo mucho mi piojita
+		/// ya vamos 
 	}
 
 }
